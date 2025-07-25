@@ -129,22 +129,8 @@ const content = {
   tags: "STEM, DIY Kit, Kids Robotics, Educational Toy, Engineering Kit",
 };
 
-const button = document.createElement("button");
-button.textContent = "Generate Product Details";
-button.id = "ai-button";
-document.body.appendChild(button);
-
-button.addEventListener("click", () => {
-  try {
-    fillShopifyProductForm(content);
-    showSuggestedCategories(content.collections);
-    console.log("✅ Product details generated!");
-  } catch (error) {
-    console.log("Error:", error);
-  }
-});
-
 function setReactInputValue(input, value) {
+  if (!input) return;
   const setter = Object.getOwnPropertyDescriptor(input.__proto__, "value")?.set;
   setter && setter.call(input, value);
   input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -162,7 +148,7 @@ function fillShopifyProductForm(content) {
   // Title
   const titleInputSelector = 'input[name="title"]';
   const titleInput = document.querySelector(titleInputSelector);
-  if (titleInput) setReactInputValue(titleInput, content.title);
+  setReactInputValue(titleInput, content.title);
 
   // Description
   trySetTinyMCE(content.description);
@@ -170,84 +156,79 @@ function fillShopifyProductForm(content) {
   // Pricing
   const priceInputSelector = 'input[name="price"]';
   const priceInput = document.querySelector(priceInputSelector);
-  if (priceInput) setReactInputValue(priceInput, content.price);
+  setReactInputValue(priceInput, content.price);
 
   const compareAtPriceInputSelector = 'input[name="compareAtPrice"]';
   const compareAtPriceInput = document.querySelector(
     compareAtPriceInputSelector
   );
-  if (compareAtPriceInput) {
-    setReactInputValue(compareAtPriceInput, content.compare_at_price);
-  }
+  setReactInputValue(compareAtPriceInput, content.compare_at_price);
 
   // Inventory
   const allowOutOfStockSelector = 'input[name="allowOutOfStockPurchases"]';
   const allowOutOfStockCheckbox = document.querySelector(
     allowOutOfStockSelector
   );
-  if (allowOutOfStockCheckbox && !allowOutOfStockCheckbox.checked) {
-    allowOutOfStockCheckbox.click();
-  }
+  // if (allowOutOfStockCheckbox && !allowOutOfStockCheckbox.checked) {
+  //   allowOutOfStockCheckbox.click();
+  // }
 
   // Shipping
   const weightInputSelector = 'input[name="variants[0].weight"]';
   const weightInput = document.querySelector(weightInputSelector);
-  if (weightInput) setReactInputValue(weightInput, content.weight);
+  setReactInputValue(weightInput, content.weight);
 
   // Variant
   const variantPriceInputSelector = 'input[name="variants[0].price"]';
   const variantPriceInput = document.querySelector(variantPriceInputSelector);
-  if (variantPriceInput) setReactInputValue(variantPriceInput, content.price);
+  setReactInputValue(variantPriceInput, content.price);
 
   const variantCompareInputSelector =
     'input[name="variants[0].compare_at_price"]';
   const variantCompareInput = document.querySelector(
     variantCompareInputSelector
   );
-  if (variantCompareInput)
-    setReactInputValue(variantCompareInput, content.compare_at_price);
+  setReactInputValue(variantCompareInput, content.compare_at_price);
 
   // Search engine listing
   const metaTitleInputSelector =
     'input[name="metafields[global][title][value]"]';
   const metaTitleInput = document.querySelector(metaTitleInputSelector);
-  if (metaTitleInput) setReactInputValue(metaTitleInput, content.meta_title);
+  setReactInputValue(metaTitleInput, content.meta_title);
 
   const metaDescriptionInputSelector =
     'input[name="metafields[global][description][value]"]';
   const metaDescriptionInput = document.querySelector(
     metaDescriptionInputSelector
   );
-  if (metaDescriptionInput)
-    setReactInputValue(metaDescriptionInput, content.meta_description);
+  setReactInputValue(metaDescriptionInput, content.meta_description);
 
   // Status
   const statusInputSelector = 'input[name="status"]';
   const statusInput = document.querySelector(statusInputSelector);
-  if (statusInput) setReactInputValue(statusInput, content.status);
+  setReactInputValue(statusInput, content.status);
 
   // Publishing
   const publishedScopeInputSelector = 'input[name="published_scope"]';
   const publishedScopeInput = document.querySelector(
     publishedScopeInputSelector
   );
-  if (publishedScopeInput)
-    setReactInputValue(publishedScopeInput, content.published_scope);
+  setReactInputValue(publishedScopeInput, content.published_scope);
 
   // Product organization
   const typeInputSelector = 'input[name="productType"]';
   const typeInput = document.querySelector(typeInputSelector);
-  if (typeInput) setReactInputValue(typeInput, content.product_type);
+  setReactInputValue(typeInput, content.product_type);
 
   const vendorInputSelector = 'input[name="vendor"]';
   const vendorInput = document.querySelector(vendorInputSelector);
-  if (vendorInput) setReactInputValue(vendorInput, content.vendor);
+  setReactInputValue(vendorInput, content.vendor);
 
   const tagsInputSelector = 'input[name="tags"]';
   const tagsInput = document.querySelector(tagsInputSelector);
+  setReactInputValue(tagsInput, content.tags);
 
   if (tagsInput) {
-    setReactInputValue(tagsInput, content.tags);
     tagsInput.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
@@ -270,6 +251,21 @@ function fillShopifyProductForm(content) {
     ${tagsInputSelector}: ${!!tagsInput ? "✅" : "⛔"}
   `);
 }
+
+const button = document.createElement("button");
+button.textContent = "Generate Product Details";
+button.id = "ai-button";
+document.body.appendChild(button);
+
+button.addEventListener("click", () => {
+  try {
+    fillShopifyProductForm(content);
+    showSuggestedCategories(content.collections);
+    console.log("✅ Product details generated!");
+  } catch (error) {
+    console.log("Error:", error);
+  }
+});
 
 const dragger = document.createElement("div");
 dragger.id = "ai-dragger";
@@ -312,38 +308,29 @@ dragger.addEventListener("drop", (e) => {
 let container = document.getElementById("category-suggestions");
 container = document.createElement("div");
 container.id = "category-suggestions";
-container.innerHTML = "<strong>Suggested Categories:</strong><br>";
 
-if (dragger && dragger.parentNode) {
-  dragger.parentNode.insertBefore(container, dragger);
-} else {
-  document.body.appendChild(container);
+// Extension
+const extension = document.createElement("div");
+extension.id = "extension";
+document.body.appendChild(extension);
+
+if (extension && extension.parentNode) {
+  extension.appendChild(button);
+  extension.appendChild(dragger);
+  extension.appendChild(container);
 }
 
+// Show suggested categories
 function showSuggestedCategories(categories) {
   let container = document.getElementById("category-suggestions");
-
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "category-suggestions";
-    container.innerHTML = "<strong>Suggested Categories:</strong><br>";
-
-    const dragger = document.getElementById("ai-dragger");
-    if (dragger && dragger.parentNode) {
-      dragger.parentNode.insertBefore(container, dragger);
-    } else {
-      document.body.appendChild(container);
-    }
-  }
 
   container.innerHTML = "<strong>Suggested Categories:</strong><br>";
 
   categories.forEach((cat) => {
-    const btn = document.createElement("button");
-    btn.className = "category-button";
-    btn.textContent = cat;
-    btn.onclick = () => setProductCategory(cat);
-    container.appendChild(btn);
+    const span = document.createElement("span");
+    span.textContent = cat;
+    container.appendChild(span);
+    container.appendChild(document.createElement("br"));
   });
 }
 

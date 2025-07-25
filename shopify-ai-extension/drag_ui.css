@@ -1,9 +1,14 @@
-#ai-dragger {
+#extension {
   position: fixed;
   bottom: 20px;
   right: 20px;
+  z-index: 9999;
+  background-color: #e8f5e9;
   width: 200px;
-  height: 100px;
+  height: 200px;
+}
+
+#ai-dragger {
   background-color: #fff;
   border: 2px dashed #aaa;
   border-radius: 10px;
@@ -21,19 +26,11 @@
 }
 
 #ai-button {
-  position: fixed;
-  bottom: 120px;
-  right: 20px;
-  width: 200px;
-  height: 50px;
   z-index: 9999;
   cursor: pointer;
 }
 
 /* Category suggestions */
 #category-suggestions {
-  position: fixed;
-  bottom: 220px;
-  right: 20px;
   z-index: 9999;
 }

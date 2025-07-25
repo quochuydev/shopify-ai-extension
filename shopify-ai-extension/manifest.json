@@ -6,7 +6,7 @@
   "permissions": ["activeTab", "scripting"],
   "content_scripts": [
     {
-      "matches": ["https://*.shopify.com/*"],
+      "matches": ["https://*.shopify.com/*", "https://github.com/*"],
       "js": ["content.js"]
     }
   ],
