@@ -380,6 +380,3 @@ function showSkeletonPlaceholders() {
   setReactInputValue(titleInput, "Generating title...");
   trySetTinyMCE("Generating description...");
 }
-
-const el = document.getElementById("category-suggestions");
-console.log(el); // should not be null
