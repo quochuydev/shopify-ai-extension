@@ -1,0 +1,31 @@
+#ai-dragger {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  height: 100px;
+  background-color: #fff;
+  border: 2px dashed #aaa;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  line-height: 100px;
+  font-weight: bold;
+  color: #555;
+  z-index: 9999;
+}
+#ai-dragger.dragover {
+  border-color: #2e7d32;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+#ai-button {
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  width: 200px;
+  height: 50px;
+  z-index: 9999;
+  cursor: pointer;
+}

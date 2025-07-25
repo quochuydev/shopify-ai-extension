@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "name": "generative-ai-platform",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^24.0.15",
+    "dotenv": "^17.2.0",
+    "openai": "^5.10.1",
+    "tsx": "^4.20.3"
+  },
+  "scripts": {
+    "dev": "tsx main.ts",
+    "start": "tsx main.ts"
+  }
+}
