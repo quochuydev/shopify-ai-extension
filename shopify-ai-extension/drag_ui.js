@@ -93,16 +93,12 @@ const content = {
       <li>✓ Promotes STEM learning and problem solving</li>
     </ul>
     <p>Great for classrooms, birthdays, or rainy-day fun.</p>`,
-
   // Pricing
   price: "18.95",
   compare_at_price: "22.95",
-
   // Inventory
-  tags: "STEM, DIY Kit, Kids Robotics, Educational Toy, Engineering Kit",
   sku: "FLINGER-KIT-001",
   weight: "0.35",
-
   // Variants
   variants: [
     {
@@ -112,21 +108,25 @@ const content = {
       weight: "0.35",
     },
   ],
-
   // Search engine listing
   meta_title: "Flinger Bot DIY Kit for Curious Engineers (Ages 8+)",
   meta_description:
     "Unleash your child's inner engineer with the Copernicus Toys Flinger Bot Kit. This hands-on STEM toy teaches the basics of mechanics and motion with easy-to-follow instructions. Ideal for ages 8+, it's the perfect introduction to robotics, curiosity, and creativity.",
-
   // Status
   status: "published",
-
   // Publishing
   published_scope: "web",
-
   // Product organization
   product_type: "STEM Kit",
   vendor: "Copernicus Toys",
+  collections: [
+    "STEM Toys",
+    "DIY Kits",
+    "Robotics",
+    "Educational Toys",
+    "Engineering Kit",
+  ],
+  tags: "STEM, DIY Kit, Kids Robotics, Educational Toy, Engineering Kit",
 };
 
 const button = document.createElement("button");
@@ -135,12 +135,18 @@ button.id = "ai-button";
 document.body.appendChild(button);
 
 button.addEventListener("click", () => {
-  fillShopifyProductForm(content);
+  try {
+    fillShopifyProductForm(content);
+    showSuggestedCategories(content.collections);
+    console.log("✅ Product details generated!");
+  } catch (error) {
+    console.log("Error:", error);
+  }
 });
 
 function setReactInputValue(input, value) {
   const setter = Object.getOwnPropertyDescriptor(input.__proto__, "value")?.set;
-  setter?.call(input, value);
+  setter && setter.call(input, value);
   input.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
@@ -149,52 +155,120 @@ const trySetTinyMCE = (description) => {
     tinymce.activeEditor.setContent(description);
     tinymce.activeEditor.fire("change");
     console.log("✅ Description filled via TinyMCE");
-  } else {
-    setTimeout(trySetTinyMCE, 300); // retry
   }
 };
 
 function fillShopifyProductForm(content) {
   // Title
-  const titleInput = document.querySelector('input[name="title"]');
+  const titleInputSelector = 'input[name="title"]';
+  const titleInput = document.querySelector(titleInputSelector);
   if (titleInput) setReactInputValue(titleInput, content.title);
 
   // Description
   trySetTinyMCE(content.description);
 
-  // Tags
-  const tagsInput = document.querySelector(
-    'input[placeholder="Vintage, cotton, summer"]'
-  );
-  if (tagsInput) setReactInputValue(tagsInput, content.tags);
-
-  // Vendor
-  const vendorInput = document.querySelector('input[name="vendor"]');
-  if (vendorInput) setReactInputValue(vendorInput, content.vendor);
-
-  // Product Type
-  const typeInput = document.querySelector('input[name="productType"]');
-  if (typeInput) setReactInputValue(typeInput, content.product_type);
-
-  // Price
-  const priceInput = document.querySelector('input[name="variants[0].price"]');
+  // Pricing
+  const priceInputSelector = 'input[name="price"]';
+  const priceInput = document.querySelector(priceInputSelector);
   if (priceInput) setReactInputValue(priceInput, content.price);
 
-  // Compare at price
-  const compareInput = document.querySelector(
-    'input[name="variants[0].compare_at_price"]'
+  const compareAtPriceInputSelector = 'input[name="compareAtPrice"]';
+  const compareAtPriceInput = document.querySelector(
+    compareAtPriceInputSelector
   );
-  if (compareInput) setReactInputValue(compareInput, content.compare_at_price);
+  if (compareAtPriceInput) {
+    setReactInputValue(compareAtPriceInput, content.compare_at_price);
+  }
 
-  // SKU
-  const skuInput = document.querySelector('input[name="variants[0].sku"]');
-  if (skuInput) setReactInputValue(skuInput, content.sku);
-
-  // Weight
-  const weightInput = document.querySelector(
-    'input[name="variants[0].weight"]'
+  // Inventory
+  const allowOutOfStockSelector = 'input[name="allowOutOfStockPurchases"]';
+  const allowOutOfStockCheckbox = document.querySelector(
+    allowOutOfStockSelector
   );
+  if (allowOutOfStockCheckbox && !allowOutOfStockCheckbox.checked) {
+    allowOutOfStockCheckbox.click();
+  }
+
+  // Shipping
+  const weightInputSelector = 'input[name="variants[0].weight"]';
+  const weightInput = document.querySelector(weightInputSelector);
   if (weightInput) setReactInputValue(weightInput, content.weight);
+
+  // Variant
+  const variantPriceInputSelector = 'input[name="variants[0].price"]';
+  const variantPriceInput = document.querySelector(variantPriceInputSelector);
+  if (variantPriceInput) setReactInputValue(variantPriceInput, content.price);
+
+  const variantCompareInputSelector =
+    'input[name="variants[0].compare_at_price"]';
+  const variantCompareInput = document.querySelector(
+    variantCompareInputSelector
+  );
+  if (variantCompareInput)
+    setReactInputValue(variantCompareInput, content.compare_at_price);
+
+  // Search engine listing
+  const metaTitleInputSelector =
+    'input[name="metafields[global][title][value]"]';
+  const metaTitleInput = document.querySelector(metaTitleInputSelector);
+  if (metaTitleInput) setReactInputValue(metaTitleInput, content.meta_title);
+
+  const metaDescriptionInputSelector =
+    'input[name="metafields[global][description][value]"]';
+  const metaDescriptionInput = document.querySelector(
+    metaDescriptionInputSelector
+  );
+  if (metaDescriptionInput)
+    setReactInputValue(metaDescriptionInput, content.meta_description);
+
+  // Status
+  const statusInputSelector = 'input[name="status"]';
+  const statusInput = document.querySelector(statusInputSelector);
+  if (statusInput) setReactInputValue(statusInput, content.status);
+
+  // Publishing
+  const publishedScopeInputSelector = 'input[name="published_scope"]';
+  const publishedScopeInput = document.querySelector(
+    publishedScopeInputSelector
+  );
+  if (publishedScopeInput)
+    setReactInputValue(publishedScopeInput, content.published_scope);
+
+  // Product organization
+  const typeInputSelector = 'input[name="productType"]';
+  const typeInput = document.querySelector(typeInputSelector);
+  if (typeInput) setReactInputValue(typeInput, content.product_type);
+
+  const vendorInputSelector = 'input[name="vendor"]';
+  const vendorInput = document.querySelector(vendorInputSelector);
+  if (vendorInput) setReactInputValue(vendorInput, content.vendor);
+
+  const tagsInputSelector = 'input[name="tags"]';
+  const tagsInput = document.querySelector(tagsInputSelector);
+
+  if (tagsInput) {
+    setReactInputValue(tagsInput, content.tags);
+    tagsInput.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+  }
+
+  console.log(`
+    ${titleInputSelector}: ${!!titleInput ? "✅" : "⛔"}
+    ${priceInputSelector}: ${!!priceInput ? "✅" : "⛔"}
+    ${compareAtPriceInputSelector}: ${!!compareAtPriceInput ? "✅" : "⛔"}
+    ${allowOutOfStockSelector}: ${!!allowOutOfStockCheckbox ? "✅" : "⛔"}
+    ${weightInputSelector}: ${!!weightInput ? "✅" : "⛔"}
+    ${variantPriceInputSelector}: ${!!variantPriceInput ? "✅" : "⛔"}
+    ${variantCompareInputSelector}: ${!!variantCompareInput ? "✅" : "⛔"}
+    ${metaTitleInputSelector}: ${!!metaTitleInput ? "✅" : "⛔"}
+    ${metaDescriptionInputSelector}: ${!!metaDescriptionInput ? "✅" : "⛔"}
+    ${statusInputSelector}: ${!!statusInput ? "✅" : "⛔"}
+    ${publishedScopeInputSelector}: ${!!publishedScopeInput ? "✅" : "⛔"}
+    ${typeInputSelector}: ${!!typeInput ? "✅" : "⛔"}
+    ${vendorInputSelector}: ${!!vendorInput ? "✅" : "⛔"}
+    ${tagsInputSelector}: ${!!tagsInput ? "✅" : "⛔"}
+  `);
 }
 
 const dragger = document.createElement("div");
@@ -227,12 +301,53 @@ dragger.addEventListener("drop", (e) => {
 
     setTimeout(() => {
       fillShopifyProductForm(content);
+      showSuggestedCategories(content.collections);
     }, 1000);
   } else {
     alert("Please drop an image file.");
   }
 });
 
+// Category suggestions
+let container = document.getElementById("category-suggestions");
+container = document.createElement("div");
+container.id = "category-suggestions";
+container.innerHTML = "<strong>Suggested Categories:</strong><br>";
+
+if (dragger && dragger.parentNode) {
+  dragger.parentNode.insertBefore(container, dragger);
+} else {
+  document.body.appendChild(container);
+}
+
+function showSuggestedCategories(categories) {
+  let container = document.getElementById("category-suggestions");
+
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "category-suggestions";
+    container.innerHTML = "<strong>Suggested Categories:</strong><br>";
+
+    const dragger = document.getElementById("ai-dragger");
+    if (dragger && dragger.parentNode) {
+      dragger.parentNode.insertBefore(container, dragger);
+    } else {
+      document.body.appendChild(container);
+    }
+  }
+
+  container.innerHTML = "<strong>Suggested Categories:</strong><br>";
+
+  categories.forEach((cat) => {
+    const btn = document.createElement("button");
+    btn.className = "category-button";
+    btn.textContent = cat;
+    btn.onclick = () => setProductCategory(cat);
+    container.appendChild(btn);
+  });
+}
+
+// Inject image to Shopify media section
 function injectImageToShopifyMedia(file) {
   const input = document.querySelector('input[type="file"][accept*="image"]');
 
@@ -278,3 +393,6 @@ function showSkeletonPlaceholders() {
   setReactInputValue(titleInput, "Generating title...");
   trySetTinyMCE("Generating description...");
 }
+
+const el = document.getElementById("category-suggestions");
+console.log(el); // should not be null

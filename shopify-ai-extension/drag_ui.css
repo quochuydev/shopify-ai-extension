@@ -29,3 +29,11 @@
   z-index: 9999;
   cursor: pointer;
 }
+
+/* Category suggestions */
+#category-suggestions {
+  position: fixed;
+  bottom: 220px;
+  right: 20px;
+  z-index: 9999;
+}
