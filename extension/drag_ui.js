@@ -19,7 +19,7 @@ const trySetTinyMCE = (description) => {
 
 function fillShopifyProductForm(content) {
   console.log("🔄 Filling Shopify form with demo AI data:", content);
-  
+
   // Title
   const titleInputSelector = 'input[name="title"]';
   const titleInput = document.querySelector(titleInputSelector);
@@ -126,7 +126,7 @@ function fillShopifyProductForm(content) {
     ${vendorInputSelector}: ${!!vendorInput ? "✅" : "⛔"}
     ${tagsInputSelector}: ${!!tagsInput ? "✅" : "⛔"}
   `);
-  
+
   console.log("✅ Demo AI form filling completed");
 }
 
@@ -232,7 +232,6 @@ let isProcessing = false;
 let isMinimized = false;
 let isGenerateSectionHidden = false;
 
-// Enhanced button functionality with demo AI
 button.addEventListener("click", async () => {
   if (isProcessing) return;
 
@@ -241,8 +240,13 @@ button.addEventListener("click", async () => {
     updateProgress(30);
 
     // Use demo AI engine instead of hardcoded content
-    const aiEngine = window.ExtensionConfig.useRealAI ? new RealAIEngine() : new DemoAIEngine();
-    const generatedContent = await aiEngine.generateProductFromText("Generate a random product", { delay: 800 });
+    const aiEngine = window.ExtensionConfig.useRealAI
+      ? new RealAIEngine()
+      : new DemoAIEngine();
+    const generatedContent = await aiEngine.generateProductFromText(
+      "Generate a random product",
+      { delay: 800 }
+    );
     updateProgress(60);
 
     fillShopifyProductForm(generatedContent);
@@ -291,7 +295,9 @@ function toggleGenerateSection() {
   isGenerateSectionHidden = !isGenerateSectionHidden;
   generateSection.classList.toggle("hidden", isGenerateSectionHidden);
   hideBtn.textContent = isGenerateSectionHidden ? "👁" : "🙈";
-  hideBtn.title = isGenerateSectionHidden ? "Show Generate Section" : "Hide Generate Section";
+  hideBtn.title = isGenerateSectionHidden
+    ? "Show Generate Section"
+    : "Hide Generate Section";
 }
 
 // Minimize functionality
@@ -367,8 +373,12 @@ async function handleImageUpload(file) {
     updateProgress(60);
 
     // Use AI engine to generate product from image
-    const aiEngine = window.ExtensionConfig.useRealAI ? new RealAIEngine() : new DemoAIEngine();
-    const generatedContent = await aiEngine.generateProductFromImage(file, { delay: 1200 });
+    const aiEngine = window.ExtensionConfig.useRealAI
+      ? new RealAIEngine()
+      : new DemoAIEngine();
+    const generatedContent = await aiEngine.generateProductFromImage(file, {
+      delay: 1200,
+    });
     updateProgress(90);
 
     // Fill form with AI-generated content

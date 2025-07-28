@@ -1,6 +1,3 @@
-// Demo AI Engine for testing purposes
-// This replaces the real OpenAI API calls with fake data
-
 const demoProductResponses = [
   {
     title: "Premium Wireless Bluetooth Headphones",
@@ -17,13 +14,14 @@ const demoProductResponses = [
     sku: "BT-HEADPHONES-001",
     weight: "0.25",
     meta_title: "Premium Wireless Bluetooth Headphones - High Quality Audio",
-    meta_description: "Premium wireless Bluetooth headphones with active noise cancellation, 30-hour battery life, and superior audio quality. Perfect for music and calls.",
+    meta_description:
+      "Premium wireless Bluetooth headphones with active noise cancellation, 30-hour battery life, and superior audio quality. Perfect for music and calls.",
     status: "published",
     published_scope: "web",
     product_type: "Electronics",
     vendor: "TechAudio",
     collections: ["Electronics", "Audio", "Headphones", "Wireless", "Premium"],
-    tags: "Bluetooth, Wireless, Headphones, Audio, Electronics, Premium"
+    tags: "Bluetooth, Wireless, Headphones, Audio, Electronics, Premium",
   },
   {
     title: "Organic Cotton T-Shirt - Sustainable Fashion",
@@ -40,13 +38,14 @@ const demoProductResponses = [
     sku: "ORGANIC-TEE-001",
     weight: "0.15",
     meta_title: "Organic Cotton T-Shirt - Sustainable Eco-Friendly Fashion",
-    meta_description: "100% organic cotton t-shirt made with sustainable practices. Soft, comfortable, and eco-friendly. Available in multiple colors and sizes.",
+    meta_description:
+      "100% organic cotton t-shirt made with sustainable practices. Soft, comfortable, and eco-friendly. Available in multiple colors and sizes.",
     status: "published",
     published_scope: "web",
     product_type: "Clothing",
     vendor: "EcoWear",
     collections: ["Clothing", "T-Shirts", "Organic", "Sustainable", "Casual"],
-    tags: "T-Shirt, Organic Cotton, Sustainable, Eco-Friendly, Clothing"
+    tags: "T-Shirt, Organic Cotton, Sustainable, Eco-Friendly, Clothing",
   },
   {
     title: "Smart Fitness Tracker Watch",
@@ -64,13 +63,20 @@ const demoProductResponses = [
     sku: "FITNESS-WATCH-001",
     weight: "0.08",
     meta_title: "Smart Fitness Tracker Watch - Health & Activity Monitor",
-    meta_description: "Advanced fitness tracker with heart rate monitoring, sleep tracking, and smart notifications. 7-day battery life and water-resistant design.",
+    meta_description:
+      "Advanced fitness tracker with heart rate monitoring, sleep tracking, and smart notifications. 7-day battery life and water-resistant design.",
     status: "published",
     published_scope: "web",
     product_type: "Wearables",
     vendor: "FitTech",
-    collections: ["Wearables", "Fitness", "Smart Watch", "Health", "Technology"],
-    tags: "Fitness Tracker, Smart Watch, Health Monitor, Wearable, Technology"
+    collections: [
+      "Wearables",
+      "Fitness",
+      "Smart Watch",
+      "Health",
+      "Technology",
+    ],
+    tags: "Fitness Tracker, Smart Watch, Health Monitor, Wearable, Technology",
   },
   {
     title: "Artisan Coffee Beans - Dark Roast Blend",
@@ -87,45 +93,46 @@ const demoProductResponses = [
     sku: "COFFEE-DARK-001",
     weight: "0.45",
     meta_title: "Artisan Dark Roast Coffee Beans - Premium Arabica Blend",
-    meta_description: "Premium artisan dark roast coffee beans with rich chocolate and caramel notes. 100% Arabica, fair trade, and freshly roasted.",
+    meta_description:
+      "Premium artisan dark roast coffee beans with rich chocolate and caramel notes. 100% Arabica, fair trade, and freshly roasted.",
     status: "published",
     published_scope: "web",
     product_type: "Food & Beverage",
     vendor: "Artisan Roasters",
     collections: ["Coffee", "Dark Roast", "Artisan", "Fair Trade", "Premium"],
-    tags: "Coffee, Dark Roast, Arabica, Artisan, Fair Trade, Premium"
-  }
+    tags: "Coffee, Dark Roast, Arabica, Artisan, Fair Trade, Premium",
+  },
 ];
 
 // Demo function to simulate AI response based on image
 function getDemoProductData(imageFile = null) {
   console.log("🔄 Demo AI: Generating fake product data...");
-  
+
   // Log the image file info for testing
   if (imageFile) {
     console.log("📸 Demo AI: Processing image:", {
       name: imageFile.name,
       size: imageFile.size,
-      type: imageFile.type
+      type: imageFile.type,
     });
   }
-  
+
   // Return a random demo product
   const randomIndex = Math.floor(Math.random() * demoProductResponses.length);
   const demoProduct = demoProductResponses[randomIndex];
-  
+
   console.log("✅ Demo AI: Generated product data:", demoProduct);
-  
+
   return demoProduct;
 }
 
 // Demo function to simulate API delay
 async function simulateAIProcessing(imageFile = null, delay = 1500) {
   console.log("⏳ Demo AI: Simulating API processing delay...");
-  
+
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, delay));
-  
+  await new Promise((resolve) => setTimeout(resolve, delay));
+
   // Return demo data
   return getDemoProductData(imageFile);
 }
@@ -135,22 +142,18 @@ class DemoAIEngine {
   constructor() {
     console.log("🤖 Demo AI Engine initialized for testing");
   }
-  
+
   async generateProductFromImage(imageFile, options = {}) {
-    const { 
-      delay = 1500, 
-      simulateError = false, 
-      errorRate = 0 
-    } = options;
-    
+    const { delay = 1500, simulateError = false, errorRate = 0 } = options;
+
     console.log("🎯 Demo AI: generateProductFromImage called");
-    
+
     // Simulate random errors for testing
     if (simulateError || Math.random() < errorRate) {
       console.error("🔴 Demo AI: Simulated API error");
       throw new Error("Demo API error: Service temporarily unavailable");
     }
-    
+
     try {
       const productData = await simulateAIProcessing(imageFile, delay);
       return productData;
@@ -159,14 +162,17 @@ class DemoAIEngine {
       throw error;
     }
   }
-  
+
   async generateProductFromText(prompt, options = {}) {
     const { delay = 1000 } = options;
-    
-    console.log("📝 Demo AI: generateProductFromText called with prompt:", prompt);
-    
-    await new Promise(resolve => setTimeout(resolve, delay));
-    
+
+    console.log(
+      "📝 Demo AI: generateProductFromText called with prompt:",
+      prompt
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
     // Return a demo product based on text prompt
     return getDemoProductData();
   }
@@ -174,7 +180,5 @@ class DemoAIEngine {
 
 // Export for use in extension
 window.DemoAIEngine = DemoAIEngine;
-window.getDemoProductData = getDemoProductData;
-window.simulateAIProcessing = simulateAIProcessing;
 
 console.log("🚀 Demo AI Engine loaded successfully");

@@ -220,6 +220,8 @@ Make it compelling, accurate, and ready for e-commerce.`;
 }
 
 export async function POST(request: NextRequest) {
+  const result: any = {};
+
   try {
     // Get authenticated user
     const supabase = await createClient();
@@ -237,6 +239,8 @@ export async function POST(request: NextRequest) {
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
+    result.rateLimitCheck = rateLimitCheck;
+
     if (!rateLimitCheck.allowed) {
       return NextResponse.json(
         {
@@ -262,6 +266,9 @@ export async function POST(request: NextRequest) {
     const imageFile = formData.get("image") as File;
     const hints = formData.get("hints") as string; // Optional product hints
 
+    result.imageFile = imageFile;
+    result.hints = hints;
+
     if (!imageFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
@@ -281,18 +288,22 @@ export async function POST(request: NextRequest) {
 
     // Get user history for context (future enhancement)
     const userHistory = await getUserHistory(user.id, supabase);
+    result.userHistory = userHistory;
 
     // Generate product content
     const productContent = await generateProductFromImage(
       base64Image,
       userHistory
     );
+    result.productContent = productContent;
 
     // Log the request for rate limiting and history
     await logRequest(user.id, base64Image, productContent, supabase);
+    result.logRequest = true;
 
     // Update rate limit headers
     const updatedRateLimit = await checkRateLimit(user.id, supabase);
+    result.updatedRateLimit = updatedRateLimit;
 
     return NextResponse.json(
       {
@@ -325,6 +336,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    console.log("API Generate: Request started", result);
   }
 }
 
