@@ -39,7 +39,7 @@ class RealAIEngine {
       const response = await fetch(`${this.baseUrl}/api/generate`, {
         method: "POST",
         body: formData,
-        credentials: "include",
+        // credentials: "include",
       });
 
       const result = await response.json();
@@ -95,7 +95,7 @@ class RealAIEngine {
     try {
       const response = await fetch(`${this.baseUrl}/api/generate`, {
         method: "GET",
-        credentials: "include",
+        // credentials: "include",
       });
 
       if (response.ok) {

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Shopify AI Product Helper",
+  "name": "Shopify AI Helper",
   "version": "1.0",
   "description": "Drag image to generate product details using AI",
   "permissions": ["activeTab", "scripting"],
@@ -12,7 +12,13 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["drag_ui.js", "drag_ui.css", "configuration.js", "demoAI.js", "realAI.js"],
+      "resources": [
+        "drag_ui.js",
+        "drag_ui.css",
+        "configuration.js",
+        "demoAI.js",
+        "realAI.js"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

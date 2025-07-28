@@ -148,7 +148,7 @@ logo.textContent = "🤖";
 
 const title = document.createElement("h3");
 title.className = "extension-title";
-title.textContent = "AI Product Helper";
+title.textContent = "AI Helper";
 
 headerLeft.appendChild(logo);
 headerLeft.appendChild(title);
