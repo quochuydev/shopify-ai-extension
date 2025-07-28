@@ -78,6 +78,11 @@ export default function PricingPage() {
       // Wait for transaction confirmation
       const receipt = await tx.wait();
 
+      if (!receipt) {
+        alert("Transaction failed. Please try again.");
+        return;
+      }
+
       // Set payment info and show success dialog
       setPaymentInfo({
         plan: planType === "payPerUse" ? "Pay Per Use" : "Unlimited Pro",
@@ -351,7 +356,7 @@ export default function PricingPage() {
         {/* Footer CTA */}
         <div className="text-center mt-16">
           <p className="text-gray-600 mb-6">
-            Need help choosing? We're here to help you find the perfect plan.
+            {`Need help choosing? We're here to help you find the perfect plan.`}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
