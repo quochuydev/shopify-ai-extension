@@ -292,7 +292,6 @@ Make it compelling, accurate, and ready for e-commerce.`;
 
     // Validate required fields
     const requiredFields = ["title", "description", "price", "product_type"];
-
     for (const field of requiredFields) {
       if (!productData[field]) {
         throw new Error(`Missing required field: ${field}`);
@@ -316,9 +315,20 @@ export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
     const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
 
     // Check rate limit
-    const rateLimitCheck = await checkRateLimit("local", supabase);
+    const rateLimitCheck = await checkRateLimit(user.id, supabase);
     result.rateLimitCheck = rateLimitCheck;
 
     if (!rateLimitCheck.allowed) {
@@ -367,7 +377,7 @@ export async function POST(request: NextRequest) {
     const base64Image = buffer.toString("base64");
 
     // Get user history for context (future enhancement)
-    const userHistory = await getUserHistory("local", supabase);
+    const userHistory = await getUserHistory(user.id, supabase);
     result.userHistory = userHistory;
 
     // Generate product content
@@ -378,11 +388,11 @@ export async function POST(request: NextRequest) {
     result.productContent = productContent;
 
     // Log the request for rate limiting and history
-    await logRequest("local", base64Image, productContent, supabase);
+    await logRequest(user.id, base64Image, productContent, supabase);
     result.logRequest = true;
 
     // Update rate limit headers
-    const updatedRateLimit = await checkRateLimit("local", supabase);
+    const updatedRateLimit = await checkRateLimit(user.id, supabase);
     result.updatedRateLimit = updatedRateLimit;
 
     return NextResponse.json(
@@ -425,9 +435,20 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    const rateLimitCheck = await checkRateLimit("local", supabase);
-    const userHistory = await getUserHistory("local", supabase);
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const rateLimitCheck = await checkRateLimit(user.id, supabase);
+    const userHistory = await getUserHistory(user.id, supabase);
 
     return NextResponse.json({
       rate_limit: {
