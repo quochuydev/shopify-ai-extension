@@ -11,6 +11,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        "shopify-green": "#00A651",
+        "shopify-green-dark": "#004C3F",
+        "shopify-green-light": "#E8F5E8",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

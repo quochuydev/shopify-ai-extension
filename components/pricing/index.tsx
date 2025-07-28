@@ -128,10 +128,10 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 flex flex-col items-center gap-4">
           <div className="flex items-center justify-center mb-6">
             <div className="p-3 bg-shopify-green rounded-lg mr-4">
               <Bot className="h-8 w-8 text-white" />
@@ -145,50 +145,22 @@ export default function PricingPage() {
             sell more, work smarter, and grow faster. Choose the plan that fits
             your needs.
           </p>
-        </div>
-
-        {/* Demo Features Section */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              See It In Action
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Watch video demonstrations of how our AI extension transforms your
-              Shopify store workflow
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {demoFeatures.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 hover:shadow-xl transition-shadow"
-              >
-                <div className="flex items-start mb-4">
-                  <div className="p-2 bg-shopify-green/10 rounded-lg mr-4 flex-shrink-0">
-                    <Play className="h-6 w-6 text-shopify-green" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 leading-tight">
-                    {feature.title}
-                  </h3>
-                </div>
-
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  {feature.description}
-                </p>
-
-                <Button
-                  className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center justify-center gap-2"
-                  onClick={() => window.open(feature.videoUrl, "_blank")}
-                >
-                  <Play className="h-4 w-4" />
-                  Watch Demo Video
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Automatically generate compelling, SEO-optimized product
+            descriptions that convert visitors into customers. Watch how our AI
+            analyzes your product and creates professional descriptions in
+            seconds.
+          </p>
+          <Button
+            className="bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center justify-center gap-2"
+            onClick={() =>
+              window.open("https://youtube.com/watch?v=demo1", "_blank")
+            }
+          >
+            <Play className="h-4 w-4" />
+            Watch Demo Video
+            <ExternalLink className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Pricing Cards */}
