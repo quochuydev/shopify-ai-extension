@@ -4,7 +4,6 @@ declare global {
   }
 }
 
-("use client");
 import { ethers } from "ethers";
 import { useState } from "react";
 import {
