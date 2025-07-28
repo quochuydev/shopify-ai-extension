@@ -238,6 +238,7 @@ button.addEventListener("click", async () => {
       "Generate a random product",
       { delay: 800 }
     );
+
     updateProgress(60);
 
     fillShopifyProductForm(generatedContent);

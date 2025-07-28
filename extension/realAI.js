@@ -1,6 +1,3 @@
-// Real AI Engine for production use
-// Integrates with the Next.js API endpoint for OpenAI processing
-
 class RealAIEngine {
   constructor() {
     console.log("🤖 Real AI Engine initialized");
@@ -8,24 +5,19 @@ class RealAIEngine {
   }
 
   getBaseUrl() {
-    // Try to detect the base URL from current domain or use localhost for development
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      const protocol = window.location.protocol;
+    // if (typeof window !== "undefined") {
+    //   const hostname = window.location.hostname;
+    //   const protocol = window.location.protocol;
 
-      // If we're on a Shopify domain, we need to use the deployed app URL
-      if (hostname.includes("shopify.com")) {
-        // Use the deployed Vercel URL or configured base URL
-        return "https://shopify-ai-extension.vercel.app"; // Replace with actual deployment URL
-      }
+    //   if (hostname.includes("shopify.com")) {
+    //     return "https://shopify-ai-extension.vercel.app";
+    //   }
 
-      // For local development
-      if (hostname === "localhost" || hostname === "127.0.0.1") {
-        return `${protocol}//localhost:3000`;
-      }
-    }
+    //   if (hostname === "localhost" || hostname === "127.0.0.1") {
+    //     return `${protocol}//localhost:3000`;
+    //   }
+    // }
 
-    // Fallback
     return "http://localhost:3001";
   }
 
@@ -44,11 +36,10 @@ class RealAIEngine {
 
       console.log("📤 Sending request to API endpoint...");
 
-      // Make API call to Next.js endpoint
       const response = await fetch(`${this.baseUrl}/api/generate`, {
         method: "POST",
         body: formData,
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -92,15 +83,9 @@ class RealAIEngine {
     }
   }
 
-  async generateProductFromText(prompt, options = {}) {
-    console.log(
-      "📝 Real AI: generateProductFromText called with prompt:",
-      prompt
-    );
+  async generateProductFromText(prompt) {
+    console.log("📝 Real AI: called with prompt:", prompt);
 
-    // For text-based generation, we can create a simple image with the text
-    // or modify the API to accept text prompts directly
-    // For now, we'll throw an error as this method needs API endpoint support
     throw new Error(
       "Text-based generation not yet supported. Please use image-based generation."
     );
@@ -126,7 +111,6 @@ class RealAIEngine {
   }
 }
 
-// Export for use in extension
 window.RealAIEngine = RealAIEngine;
 
 console.log("🚀 Real AI Engine loaded successfully");
