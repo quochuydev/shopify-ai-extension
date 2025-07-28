@@ -17,11 +17,10 @@ export default function Home() {
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
           </div>
         </nav>
-        <div className="flex-1 flex flex-col max-w-5xl">
-          <main className="flex-1 flex flex-col gap-6 px-4">
-            <Pricing />
-          </main>
-        </div>
+
+        <main className="flex-1 flex flex-col gap-6 px-4">
+          <Pricing />
+        </main>
 
         <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
           <p>Powered by @quochuydev</p>

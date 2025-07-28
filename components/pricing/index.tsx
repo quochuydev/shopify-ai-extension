@@ -164,7 +164,72 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {/* Free Trial */}
+          <Card className="relative bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-blue-500 text-white px-4 py-1 font-medium">
+                Free Trial
+              </Badge>
+            </div>
+            <CardHeader className="text-center pb-8 pt-8">
+              <CardTitle className="text-2xl font-semibold text-gray-900">
+                Free Trial
+              </CardTitle>
+              <CardDescription className="text-gray-600 mt-2">
+                Try our AI features with no commitment
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-blue-500 mb-2">$0</div>
+                <p className="text-gray-600">5 AI actions included</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Perfect for testing
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center">
+                  <Check className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">
+                    5 free AI actions
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">
+                    All AI features included
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">
+                    No payment required
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Email support</span>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-700 font-medium">
+                  🎯 Perfect way to experience our AI before committing
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3"
+                onClick={() => false}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Setting up..." : "Start Free Trial"}
+              </Button>
+            </CardFooter>
+          </Card>
           {/* Pay Per Use */}
           <Card className="relative bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
             <CardHeader className="text-center pb-8">
