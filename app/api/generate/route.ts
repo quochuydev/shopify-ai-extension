@@ -427,6 +427,7 @@ export async function POST(request: NextRequest) {
           "X-RateLimit-Reset": new Date(
             Date.now() + RATE_LIMIT_WINDOW
           ).toISOString(),
+          "Access-Control-Allow-Origin": "https://admin.shopify.com",
         },
       }
     );
@@ -483,7 +484,7 @@ export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "https://admin.shopify.com",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Access-Control-Max-Age": "86400",
