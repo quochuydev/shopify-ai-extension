@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 import { createClient } from "@/lib/supabase/server";
+import { v4 as uuid } from "uuid";
 
 // Rate limiting configuration
 const RATE_LIMIT_REQUESTS = 3;
@@ -35,6 +36,10 @@ interface ProductContent {
   tags: string;
 }
 
+const user = {
+  id: uuid(),
+};
+
 // Rate limiting helper
 async function checkRateLimit(
   userId: string,
@@ -42,6 +47,17 @@ async function checkRateLimit(
 ): Promise<{ allowed: boolean; remaining: number }> {
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW);
+
+  try {
+    await supabase.from("ai_requests").insert({
+      user_id: userId,
+      image_data: "",
+      generated_content: {},
+      created_at: now.toISOString(),
+    });
+  } catch (error) {
+    console.log(`debug:error`, error);
+  }
 
   try {
     // Get user's requests in the current window
@@ -182,9 +198,7 @@ Make it compelling, accurate, and ready for e-commerce.`;
 
     // Extract JSON from response (handle potential markdown formatting)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No valid JSON found in response");
-    }
+    if (!jsonMatch) throw new Error("No valid JSON found in response");
 
     const productData = JSON.parse(jsonMatch[0]);
 
@@ -199,6 +213,7 @@ Make it compelling, accurate, and ready for e-commerce.`;
     return productData as ProductContent;
   } catch (error) {
     console.error("OpenAI text generation error:", error);
+
     throw new Error(
       `Failed to generate product content from text: ${
         error instanceof Error ? error.message : "Unknown error"
@@ -284,9 +299,7 @@ Make it compelling, accurate, and ready for e-commerce.`;
 
     // Extract JSON from response (handle potential markdown formatting)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No valid JSON found in response");
-    }
+    if (!jsonMatch) throw new Error("No valid JSON found in response");
 
     const productData = JSON.parse(jsonMatch[0]);
 
@@ -318,7 +331,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     // Check rate limit
-    const rateLimitCheck = await checkRateLimit("local", supabase);
+    const rateLimitCheck = await checkRateLimit(user.id, supabase);
     result.rateLimitCheck = rateLimitCheck;
 
     if (!rateLimitCheck.allowed) {
@@ -350,14 +363,25 @@ export async function POST(request: NextRequest) {
     result.hints = hints;
 
     if (!imageFile) {
-      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "No image provided",
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
     // Validate image
     if (!imageFile.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload an image." },
-        { status: 400 }
+        {
+          error: "Invalid file type. Please upload an image.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -367,7 +391,7 @@ export async function POST(request: NextRequest) {
     const base64Image = buffer.toString("base64");
 
     // Get user history for context (future enhancement)
-    const userHistory = await getUserHistory("local", supabase);
+    const userHistory = await getUserHistory(user.id, supabase);
     result.userHistory = userHistory;
 
     // Generate product content
@@ -378,11 +402,11 @@ export async function POST(request: NextRequest) {
     result.productContent = productContent;
 
     // Log the request for rate limiting and history
-    await logRequest("local", base64Image, productContent, supabase);
+    await logRequest(user.id, base64Image, productContent, supabase);
     result.logRequest = true;
 
     // Update rate limit headers
-    const updatedRateLimit = await checkRateLimit("local", supabase);
+    const updatedRateLimit = await checkRateLimit(user.id, supabase);
     result.updatedRateLimit = updatedRateLimit;
 
     return NextResponse.json(
@@ -414,7 +438,9 @@ export async function POST(request: NextRequest) {
         message:
           error instanceof Error ? error.message : "Unknown error occurred",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   } finally {
     console.log("API Generate: Request started", result);
@@ -426,8 +452,8 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    const rateLimitCheck = await checkRateLimit("local", supabase);
-    const userHistory = await getUserHistory("local", supabase);
+    const rateLimitCheck = await checkRateLimit(user.id, supabase);
+    const userHistory = await getUserHistory(user.id, supabase);
 
     return NextResponse.json({
       rate_limit: {
