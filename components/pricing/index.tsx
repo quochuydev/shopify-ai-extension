@@ -1,11 +1,6 @@
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
+"use client";
 import { ethers } from "ethers";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -25,6 +20,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 export default function PricingPage() {
   const [usageCount, setUsageCount] = useState([50]);
