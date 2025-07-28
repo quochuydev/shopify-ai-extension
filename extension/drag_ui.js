@@ -1,138 +1,11 @@
-const example = {
-  product: {
-    id: 8048322576584,
-    title: "Americano (M)",
-    body_html: "",
-    vendor: "quochuy.dev",
-    product_type: "",
-    created_at: "2024-09-02T21:46:44+07:00",
-    handle: "americano-m",
-    updated_at: "2025-07-25T11:50:19+07:00",
-    published_at: "2024-09-02T21:46:44+07:00",
-    template_suffix: "",
-    published_scope: "web",
-    tags: "",
-    variants: [
-      {
-        id: 44074781212872,
-        product_id: 8048322576584,
-        title: "Default Title",
-        price: "1.80",
-        sku: "",
-        position: 2,
-        compare_at_price: "",
-        fulfillment_service: "manual",
-        inventory_management: null,
-        option1: "Default Title",
-        option2: null,
-        option3: null,
-        created_at: "2024-09-02T21:46:45+07:00",
-        updated_at: "2025-07-25T11:50:19+07:00",
-        taxable: true,
-        barcode: "",
-        grams: 0,
-        image_id: null,
-        weight: 0,
-        weight_unit: "kg",
-        requires_shipping: false,
-        quantity_rule: {
-          min: 1,
-          max: null,
-          increment: 1,
-        },
-        price_currency: "USD",
-        compare_at_price_currency: "",
-        quantity_price_breaks: [],
-      },
-    ],
-    options: [
-      {
-        id: 10154863231176,
-        product_id: 8048322576584,
-        name: "Title",
-        position: 1,
-        values: ["Default Title"],
-      },
-    ],
-    images: [
-      {
-        id: 36305382637768,
-        product_id: 8048322576584,
-        position: 1,
-        created_at: "2024-09-07T16:30:25+07:00",
-        updated_at: "2024-09-07T16:30:27+07:00",
-        alt: null,
-        width: 1170,
-        height: 1168,
-        src: "https://cdn.shopify.com/s/files/1/0583/7973/1144/files/IMG_5466_48c2372e-0f09-4b37-a6f2-af68142b7ead.jpg?v=1725701427",
-        variant_ids: [],
-      },
-    ],
-    image: {
-      id: 36305382637768,
-      product_id: 8048322576584,
-      position: 1,
-      created_at: "2024-09-07T16:30:25+07:00",
-      updated_at: "2024-09-07T16:30:27+07:00",
-      alt: null,
-      width: 1170,
-      height: 1168,
-      src: "https://cdn.shopify.com/s/files/1/0583/7973/1144/files/IMG_5466_48c2372e-0f09-4b37-a6f2-af68142b7ead.jpg?v=1725701427",
-      variant_ids: [],
-    },
-  },
-};
+console.log("🚀 Shopify AI Extension loaded with Demo AI Engine");
 
-const content = {
-  // Left
-  title: "Flinger Bot DIY Kit for Curious Engineers (Ages 8+)",
-  description: `<p>Unleash your child's inner engineer with the <strong>Copernicus Toys Flinger Bot Kit</strong>. This hands-on STEM toy teaches the basics of mechanics and motion with easy-to-follow instructions. Ideal for ages 8+, it's the perfect introduction to robotics, curiosity, and creativity.</p>
-    <ul style="list-style-type: none; padding-left: 0;">
-      <li>✓ Build your own mini flinger robot</li>
-      <li>✓ Includes all required parts and tools</li>
-      <li>✓ Promotes STEM learning and problem solving</li>
-    </ul>
-    <p>Great for classrooms, birthdays, or rainy-day fun.</p>`,
-  // Pricing
-  price: "18.95",
-  compare_at_price: "22.95",
-  // Inventory
-  sku: "FLINGER-KIT-001",
-  weight: "0.35",
-  // Variants
-  variants: [
-    {
-      price: "18.95",
-      compare_at_price: "22.95",
-      sku: "FLINGER-KIT-001",
-      weight: "0.35",
-    },
-  ],
-  // Search engine listing
-  meta_title: "Flinger Bot DIY Kit for Curious Engineers (Ages 8+)",
-  meta_description:
-    "Unleash your child's inner engineer with the Copernicus Toys Flinger Bot Kit. This hands-on STEM toy teaches the basics of mechanics and motion with easy-to-follow instructions. Ideal for ages 8+, it's the perfect introduction to robotics, curiosity, and creativity.",
-  // Status
-  status: "published",
-  // Publishing
-  published_scope: "web",
-  // Product organization
-  product_type: "STEM Kit",
-  vendor: "Copernicus Toys",
-  collections: [
-    "STEM Toys",
-    "DIY Kits",
-    "Robotics",
-    "Educational Toys",
-    "Engineering Kit",
-  ],
-  tags: "STEM, DIY Kit, Kids Robotics, Educational Toy, Engineering Kit",
-};
+// Demo content removed - now using dynamic DemoAI engine
 
 function setReactInputValue(input, value) {
   if (!input) return;
   const setter = Object.getOwnPropertyDescriptor(input.__proto__, "value")?.set;
-  setter && setter.call(input, value);
+  if (setter) setter.call(input, value);
   input.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
@@ -145,6 +18,8 @@ const trySetTinyMCE = (description) => {
 };
 
 function fillShopifyProductForm(content) {
+  console.log("🔄 Filling Shopify form with demo AI data:", content);
+  
   // Title
   const titleInputSelector = 'input[name="title"]';
   const titleInput = document.querySelector(titleInputSelector);
@@ -234,6 +109,7 @@ function fillShopifyProductForm(content) {
     );
   }
 
+  console.log("📋 Form field mapping results:");
   console.log(`
     ${titleInputSelector}: ${!!titleInput ? "✅" : "⛔"}
     ${priceInputSelector}: ${!!priceInput ? "✅" : "⛔"}
@@ -250,28 +126,269 @@ function fillShopifyProductForm(content) {
     ${vendorInputSelector}: ${!!vendorInput ? "✅" : "⛔"}
     ${tagsInputSelector}: ${!!tagsInput ? "✅" : "⛔"}
   `);
+  
+  console.log("✅ Demo AI form filling completed");
 }
 
-const button = document.createElement("button");
-button.textContent = "Generate Product Details";
-button.id = "ai-button";
-document.body.appendChild(button);
+// Create enhanced UI elements
+const extension = document.createElement("div");
+extension.id = "extension";
 
-button.addEventListener("click", () => {
+// Extension header
+const header = document.createElement("div");
+header.className = "extension-header";
+
+// Left side of header (logo + title)
+const headerLeft = document.createElement("div");
+headerLeft.className = "header-left";
+
+const logo = document.createElement("div");
+logo.className = "extension-logo";
+logo.textContent = "🤖";
+
+const title = document.createElement("h3");
+title.className = "extension-title";
+title.textContent = "AI Product Helper";
+
+headerLeft.appendChild(logo);
+headerLeft.appendChild(title);
+
+// Right side of header (controls)
+const headerControls = document.createElement("div");
+headerControls.className = "header-controls";
+
+const hideBtn = document.createElement("button");
+hideBtn.className = "hide-btn";
+hideBtn.textContent = "👁";
+hideBtn.title = "Hide Generate Section";
+
+const minimizeBtn = document.createElement("button");
+minimizeBtn.className = "minimize-btn";
+minimizeBtn.textContent = "−";
+minimizeBtn.title = "Minimize";
+
+headerControls.appendChild(hideBtn);
+headerControls.appendChild(minimizeBtn);
+
+header.appendChild(headerLeft);
+header.appendChild(headerControls);
+extension.appendChild(header);
+
+// Drag area with enhanced content
+const dragger = document.createElement("div");
+dragger.id = "ai-dragger";
+dragger.innerHTML = `
+  <div class="dragger-icon">📸</div>
+  <div class="dragger-text">Drop product image here</div>
+  <div class="dragger-subtext">Or click to select a file</div>
+`;
+
+// Hidden file input for click-to-upload
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.accept = "image/*";
+fileInput.style.display = "none";
+
+// Generate button with loading state
+const button = document.createElement("button");
+button.id = "ai-button";
+button.innerHTML = "Generate Product Details";
+
+// Progress bar
+const progressBar = document.createElement("div");
+progressBar.className = "progress-bar";
+progressBar.style.display = "none";
+const progressFill = document.createElement("div");
+progressFill.className = "progress-fill";
+progressBar.appendChild(progressFill);
+
+// Status message
+const statusMessage = document.createElement("div");
+statusMessage.className = "status-message";
+statusMessage.style.display = "none";
+
+// Category suggestions container
+const suggestionsContainer = document.createElement("div");
+suggestionsContainer.id = "category-suggestions";
+suggestionsContainer.style.display = "none";
+
+// Create generate section wrapper
+const generateSection = document.createElement("div");
+generateSection.className = "generate-section";
+generateSection.appendChild(dragger);
+generateSection.appendChild(fileInput);
+generateSection.appendChild(button);
+generateSection.appendChild(progressBar);
+generateSection.appendChild(statusMessage);
+
+// Assemble the extension
+extension.appendChild(generateSection);
+extension.appendChild(suggestionsContainer);
+
+document.body.appendChild(extension);
+
+// State management
+let isProcessing = false;
+let isMinimized = false;
+let isGenerateSectionHidden = false;
+
+// Enhanced button functionality with demo AI
+button.addEventListener("click", async () => {
+  if (isProcessing) return;
+
   try {
-    fillShopifyProductForm(content);
-    showSuggestedCategories(content.collections);
-    console.log("✅ Product details generated!");
+    setProcessingState(true, "Generating product details...");
+    updateProgress(30);
+
+    // Use demo AI engine instead of hardcoded content
+    const aiEngine = window.ExtensionConfig.useRealAI ? new RealAIEngine() : new DemoAIEngine();
+    const generatedContent = await aiEngine.generateProductFromText("Generate a random product", { delay: 800 });
+    updateProgress(60);
+
+    fillShopifyProductForm(generatedContent);
+    updateProgress(80);
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    showSuggestedCategories(generatedContent.collections);
+    updateProgress(100);
+
+    showStatus("Product details generated successfully!", "success");
+
+    setTimeout(() => {
+      setProcessingState(false);
+      hideProgress();
+    }, 1500);
   } catch (error) {
-    console.log("Error:", error);
+    console.error("🔴 AI Error:", error);
+    showStatus("Failed to generate product details", "error");
+    setProcessingState(false);
+    hideProgress();
   }
 });
 
-const dragger = document.createElement("div");
-dragger.id = "ai-dragger";
-dragger.textContent = "Drop image here";
+// Click to upload functionality
+dragger.addEventListener("click", () => {
+  if (!isProcessing) {
+    fileInput.click();
+  }
+});
 
-document.body.appendChild(dragger);
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith("image/")) {
+    handleImageUpload(file);
+  }
+});
+
+// Hide generate section functionality
+hideBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleGenerateSection();
+});
+
+function toggleGenerateSection() {
+  isGenerateSectionHidden = !isGenerateSectionHidden;
+  generateSection.classList.toggle("hidden", isGenerateSectionHidden);
+  hideBtn.textContent = isGenerateSectionHidden ? "👁" : "🙈";
+  hideBtn.title = isGenerateSectionHidden ? "Show Generate Section" : "Hide Generate Section";
+}
+
+// Minimize functionality
+minimizeBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleMinimize();
+});
+
+extension.addEventListener("click", () => {
+  if (isMinimized) {
+    toggleMinimize();
+  }
+});
+
+function toggleMinimize() {
+  isMinimized = !isMinimized;
+  extension.classList.toggle("minimized", isMinimized);
+  minimizeBtn.textContent = isMinimized ? "+" : "−";
+  minimizeBtn.title = isMinimized ? "Expand" : "Minimize";
+}
+
+function setProcessingState(processing, message = "") {
+  isProcessing = processing;
+  button.disabled = processing;
+
+  if (processing) {
+    button.innerHTML = '<span class="loading-spinner"></span>Processing...';
+    if (message) showStatus(message, "info");
+  } else {
+    button.innerHTML = "Generate Product Details";
+  }
+}
+
+function updateProgress(percentage) {
+  progressBar.style.display = "block";
+  progressFill.style.width = percentage + "%";
+}
+
+function hideProgress() {
+  setTimeout(() => {
+    progressBar.style.display = "none";
+    progressFill.style.width = "0%";
+  }, 500);
+}
+
+function showStatus(message, type = "info") {
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${
+    type === "error" ? "error-state" : type === "success" ? "success-state" : ""
+  }`;
+  statusMessage.style.display = "block";
+
+  if (type === "success" || type === "error") {
+    setTimeout(() => {
+      statusMessage.style.display = "none";
+    }, 3000);
+  }
+}
+
+async function handleImageUpload(file) {
+  if (isProcessing) return;
+
+  try {
+    setProcessingState(true, "Analyzing image...");
+    updateProgress(20);
+
+    // Show skeleton placeholders
+    showSkeletonPlaceholders();
+    updateProgress(40);
+
+    // Inject image to Shopify media section
+    injectImageToShopifyMedia(file);
+    updateProgress(60);
+
+    // Use AI engine to generate product from image
+    const aiEngine = window.ExtensionConfig.useRealAI ? new RealAIEngine() : new DemoAIEngine();
+    const generatedContent = await aiEngine.generateProductFromImage(file, { delay: 1200 });
+    updateProgress(90);
+
+    // Fill form with AI-generated content
+    fillShopifyProductForm(generatedContent);
+    showSuggestedCategories(generatedContent.collections);
+    updateProgress(100);
+
+    showStatus("Product generated from image!", "success");
+
+    setTimeout(() => {
+      setProcessingState(false);
+      hideProgress();
+    }, 1500);
+  } catch (error) {
+    console.error("🔴 Error processing image:", error);
+    showStatus("Failed to process image", "error");
+    setProcessingState(false);
+    hideProgress();
+  }
+}
 
 // Drag styling
 dragger.addEventListener("dragover", (e) => {
@@ -290,48 +407,55 @@ dragger.addEventListener("drop", (e) => {
   const file = e.dataTransfer.files[0];
 
   if (file && file.type.startsWith("image/")) {
-    showSkeletonPlaceholders();
-
-    // sendImage(file);
-    injectImageToShopifyMedia(file);
-
-    setTimeout(() => {
-      fillShopifyProductForm(content);
-      showSuggestedCategories(content.collections);
-    }, 1000);
+    handleImageUpload(file);
   } else {
     alert("Please drop an image file.");
   }
 });
 
-// Category suggestions
-let container = document.getElementById("category-suggestions");
-container = document.createElement("div");
-container.id = "category-suggestions";
-
-// Extension
-const extension = document.createElement("div");
-extension.id = "extension";
-document.body.appendChild(extension);
-
-if (extension && extension.parentNode) {
-  extension.appendChild(button);
-  extension.appendChild(dragger);
-  extension.appendChild(container);
-}
-
-// Show suggested categories
+// Enhanced show suggested categories function
 function showSuggestedCategories(categories) {
-  let container = document.getElementById("category-suggestions");
+  const container = document.getElementById("category-suggestions");
 
-  container.innerHTML = "<strong>Suggested Categories:</strong><br>";
+  if (!categories || categories.length === 0) {
+    container.style.display = "none";
+    return;
+  }
 
-  categories.forEach((cat) => {
-    const span = document.createElement("span");
-    span.textContent = cat;
-    container.appendChild(span);
-    container.appendChild(document.createElement("br"));
+  container.innerHTML = `
+    <div class="suggestions-title">Suggested Categories</div>
+  `;
+
+  categories.forEach((category) => {
+    const tag = document.createElement("span");
+    tag.className = "category-tag";
+    tag.textContent = category;
+    tag.title = `Click to add "${category}" to product tags`;
+
+    // Add click functionality to insert category into tags field
+    tag.addEventListener("click", () => {
+      const tagsInput = document.querySelector('input[name="tags"]');
+      if (tagsInput) {
+        const currentTags = tagsInput.value;
+        const newTags = currentTags ? `${currentTags}, ${category}` : category;
+        setReactInputValue(tagsInput, newTags);
+
+        // Visual feedback
+        tag.style.opacity = "0.6";
+        tag.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          tag.style.opacity = "1";
+          tag.style.transform = "scale(1)";
+        }, 200);
+
+        showStatus(`Added "${category}" to tags`, "success");
+      }
+    });
+
+    container.appendChild(tag);
   });
+
+  container.style.display = "block";
 }
 
 // Inject image to Shopify media section
@@ -355,25 +479,7 @@ function injectImageToShopifyMedia(file) {
   console.log("✅ Image injected into Shopify media section");
 }
 
-function sendImage(file) {
-  const formData = new FormData();
-  formData.append("image", file);
-
-  fetch("https://your-backend.com/api/generate", {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("AI Response:", data);
-      alert("Product details generated!");
-      // Optionally auto-fill Shopify form fields using DOM selectors
-    })
-    .catch((err) => {
-      console.error("Error:", err);
-      alert("Failed to process image.");
-    });
-}
+// Removed sendImage function - now using AI engine
 
 function showSkeletonPlaceholders() {
   const titleInput = document.querySelector('input[name="title"]');
