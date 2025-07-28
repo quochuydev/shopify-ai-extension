@@ -157,17 +157,11 @@ headerLeft.appendChild(title);
 const headerControls = document.createElement("div");
 headerControls.className = "header-controls";
 
-const hideBtn = document.createElement("button");
-hideBtn.className = "hide-btn";
-hideBtn.textContent = "👁";
-hideBtn.title = "Hide Generate Section";
-
 const minimizeBtn = document.createElement("button");
 minimizeBtn.className = "minimize-btn";
 minimizeBtn.textContent = "−";
 minimizeBtn.title = "Minimize";
 
-headerControls.appendChild(hideBtn);
 headerControls.appendChild(minimizeBtn);
 
 header.appendChild(headerLeft);
@@ -230,7 +224,6 @@ document.body.appendChild(extension);
 // State management
 let isProcessing = false;
 let isMinimized = false;
-let isGenerateSectionHidden = false;
 
 button.addEventListener("click", async () => {
   if (isProcessing) return;
@@ -239,10 +232,8 @@ button.addEventListener("click", async () => {
     setProcessingState(true, "Generating product details...");
     updateProgress(30);
 
-    // Use demo AI engine instead of hardcoded content
-    const aiEngine = window.ExtensionConfig.useRealAI
-      ? new RealAIEngine()
-      : new DemoAIEngine();
+    const aiEngine = new DemoAIEngine();
+
     const generatedContent = await aiEngine.generateProductFromText(
       "Generate a random product",
       { delay: 800 }
@@ -284,21 +275,6 @@ fileInput.addEventListener("change", (e) => {
     handleImageUpload(file);
   }
 });
-
-// Hide generate section functionality
-hideBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  toggleGenerateSection();
-});
-
-function toggleGenerateSection() {
-  isGenerateSectionHidden = !isGenerateSectionHidden;
-  generateSection.classList.toggle("hidden", isGenerateSectionHidden);
-  hideBtn.textContent = isGenerateSectionHidden ? "👁" : "🙈";
-  hideBtn.title = isGenerateSectionHidden
-    ? "Show Generate Section"
-    : "Hide Generate Section";
-}
 
 // Minimize functionality
 minimizeBtn.addEventListener("click", (e) => {
@@ -372,7 +348,6 @@ async function handleImageUpload(file) {
     injectImageToShopifyMedia(file);
     updateProgress(60);
 
-    // Use AI engine to generate product from image
     const aiEngine = window.ExtensionConfig.useRealAI
       ? new RealAIEngine()
       : new DemoAIEngine();
@@ -440,15 +415,12 @@ function showSuggestedCategories(categories) {
     const tag = document.createElement("span");
     tag.className = "category-tag";
     tag.textContent = category;
-    tag.title = `Click to add "${category}" to product tags`;
+    tag.title = `Click to copy "${category}" to clipboard`;
 
-    // Add click functionality to insert category into tags field
-    tag.addEventListener("click", () => {
-      const tagsInput = document.querySelector('input[name="tags"]');
-      if (tagsInput) {
-        const currentTags = tagsInput.value;
-        const newTags = currentTags ? `${currentTags}, ${category}` : category;
-        setReactInputValue(tagsInput, newTags);
+    // Add click functionality to copy category to clipboard
+    tag.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(category);
 
         // Visual feedback
         tag.style.opacity = "0.6";
@@ -458,7 +430,17 @@ function showSuggestedCategories(categories) {
           tag.style.transform = "scale(1)";
         }, 200);
 
-        showStatus(`Added "${category}" to tags`, "success");
+        showStatus(`Copied "${category}" to clipboard`, "success");
+      } catch {
+        // Fallback for older browsers or when clipboard API fails
+        const textArea = document.createElement("textarea");
+        textArea.value = category;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        showStatus(`Copied "${category}" to clipboard`, "success");
       }
     });
 

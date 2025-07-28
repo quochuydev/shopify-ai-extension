@@ -16,7 +16,7 @@ class RealAIEngine {
       // If we're on a Shopify domain, we need to use the deployed app URL
       if (hostname.includes("shopify.com")) {
         // Use the deployed Vercel URL or configured base URL
-        return "https://your-vercel-app.vercel.app"; // Replace with actual deployment URL
+        return "https://shopify-ai-extension.vercel.app"; // Replace with actual deployment URL
       }
 
       // For local development
@@ -26,7 +26,7 @@ class RealAIEngine {
     }
 
     // Fallback
-    return "http://localhost:3000";
+    return "http://localhost:3001";
   }
 
   async generateProductFromImage(imageFile, options = {}) {

@@ -116,7 +116,6 @@ async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
   }
 }
 
-// Generate product content from image using OpenAI
 async function generateProductFromImage(
   imageBase64: string,
   userHistory?: any[]
@@ -380,4 +379,17 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Handle CORS preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
 }
