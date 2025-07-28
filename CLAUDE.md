@@ -42,7 +42,7 @@ No specific test commands are configured. Use standard testing practices if addi
 ### Next.js App
 
 - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY`: Supabase public key
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase public key
 - `VERCEL_URL`: Deployment URL (optional)
 
 ### AI Engine

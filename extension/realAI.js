@@ -5,18 +5,18 @@ class RealAIEngine {
   }
 
   getBaseUrl() {
-    // if (typeof window !== "undefined") {
-    //   const hostname = window.location.hostname;
-    //   const protocol = window.location.protocol;
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
 
-    //   if (hostname.includes("shopify.com")) {
-    //     return "https://shopify-ai-extension.vercel.app";
-    //   }
+      if (hostname.includes("shopify.com")) {
+        return "https://shopify-ai-extension.vercel.app";
+      }
 
-    //   if (hostname === "localhost" || hostname === "127.0.0.1") {
-    //     return `${protocol}//localhost:3000`;
-    //   }
-    // }
+      if (hostname === "localhost" || hostname === "127.0.0.1") {
+        return `${protocol}//localhost:3000`;
+      }
+    }
 
     return "http://localhost:3001";
   }
