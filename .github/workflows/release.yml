@@ -1,0 +1,108 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.1)'
+        required: true
+        default: 'v1.0.1'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Get version from tag or input
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Update manifest version
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        VERSION_NUMBER=${VERSION#v}
+        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION_NUMBER\"/" extension/manifest.json
+        
+    - name: Create extension package
+      run: |
+        mkdir -p dist
+        cd extension
+        zip -r ../dist/shopify-ai-extension-${{ steps.version.outputs.version }}.zip . -x "*.DS_Store" "node_modules/*" "*.git*"
+        
+    - name: Verify package contents
+      run: |
+        echo "Package contents:"
+        unzip -l dist/shopify-ai-extension-${{ steps.version.outputs.version }}.zip
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.tag_name }}
+        release_name: Shopify AI Extension ${{ steps.version.outputs.version }}
+        body: |
+          ## Shopify AI Extension ${{ steps.version.outputs.version }}
+          
+          ### Installation Instructions
+          1. Download the `shopify-ai-extension-${{ steps.version.outputs.version }}.zip` file below
+          2. Extract the ZIP file to a folder on your computer
+          3. Open Chrome and go to `chrome://extensions/`
+          4. Enable "Developer mode" in the top right corner
+          5. Click "Load unpacked" and select the extracted folder
+          6. The extension should now be installed and ready to use on Shopify admin pages
+          
+          ### Features
+          - Drag and drop product images to automatically generate product details
+          - AI-powered content generation using OpenAI GPT-4 Vision
+          - Automatic form filling for Shopify product pages
+          - Category suggestions and TinyMCE editor integration
+          
+          ### Requirements
+          - Chrome browser
+          - Access to Shopify admin pages
+          - OpenAI API key (configured in the extension)
+          
+          ### Download
+          Click on the ZIP file below to download the extension.
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/shopify-ai-extension-${{ steps.version.outputs.version }}.zip
+        asset_name: shopify-ai-extension-${{ steps.version.outputs.version }}.zip
+        asset_content_type: application/zip
+        
+    - name: Output download link
+      run: |
+        echo "🎉 Extension released successfully!"
+        echo "📦 Download link: https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag_name }}/shopify-ai-extension-${{ steps.version.outputs.version }}.zip"
+        echo "🔗 Release page: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag_name }}"
