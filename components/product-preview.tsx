@@ -1,5 +1,10 @@
 "use client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ProductContent } from "@/types";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -36,9 +41,12 @@ export function ProductPreview() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="w-[80vw] h-[80vh] max-w-none z-[99999] p-0">
-        <div className="flex flex-col h-full">
-          <DialogHeader className="p-6 pb-4 border-b">
+      <DialogContent
+        className="!w-[90vw] !h-[90vh] !max-w-[90vw] !max-h-[90vh] !min-w-[320px] !min-h-[400px] z-[99999] p-0 overflow-auto sm:!w-[90vw] sm:!h-[90vh] md:!w-[90vw] md:!h-[90vh] lg:!w-[90vw] lg:!h-[90vh]"
+        showCloseButton={false}
+      >
+        <div className="flex flex-col w-full h-full">
+          <DialogHeader className="flex-shrink-0 p-6 pb-4 border-b">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-bold flex items-center gap-2">
                 🤖 AI Generated Product Details
@@ -58,22 +66,29 @@ export function ProductPreview() {
           </DialogHeader>
 
           {product && (
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 min-h-0">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column - Basic Info */}
                 <div className="space-y-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Basic Information</CardTitle>
+                      <CardTitle className="text-lg">
+                        Basic Information
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="title" className="flex items-center justify-between">
+                        <Label
+                          htmlFor="title"
+                          className="flex items-center justify-between"
+                        >
                           Title
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(product.title, "Title")}
+                            onClick={() =>
+                              copyToClipboard(product.title, "Title")
+                            }
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -88,12 +103,20 @@ export function ProductPreview() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="description" className="flex items-center justify-between">
+                        <Label
+                          htmlFor="description"
+                          className="flex items-center justify-between"
+                        >
                           Description
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(product.description, "Description")}
+                            onClick={() =>
+                              copyToClipboard(
+                                product.description,
+                                "Description"
+                              )
+                            }
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -103,7 +126,7 @@ export function ProductPreview() {
                           id="description"
                           value={product.description}
                           readOnly
-                          className="bg-gray-50 min-h-[120px]"
+                          className="bg-gray-50 min-h-[200px]"
                         />
                       </div>
 
@@ -121,7 +144,11 @@ export function ProductPreview() {
                           <Label htmlFor="compare_price">Compare Price</Label>
                           <Input
                             id="compare_price"
-                            value={product.compare_at_price ? `$${product.compare_at_price}` : ""}
+                            value={
+                              product.compare_at_price
+                                ? `$${product.compare_at_price}`
+                                : ""
+                            }
                             readOnly
                             className="bg-gray-50"
                           />
@@ -189,12 +216,17 @@ export function ProductPreview() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="tags" className="flex items-center justify-between">
+                        <Label
+                          htmlFor="tags"
+                          className="flex items-center justify-between"
+                        >
                           Tags
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(product.tags, "Tags")}
+                            onClick={() =>
+                              copyToClipboard(product.tags, "Tags")
+                            }
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -219,12 +251,17 @@ export function ProductPreview() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="meta_title" className="flex items-center justify-between">
+                        <Label
+                          htmlFor="meta_title"
+                          className="flex items-center justify-between"
+                        >
                           Meta Title
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(product.meta_title, "Meta Title")}
+                            onClick={() =>
+                              copyToClipboard(product.meta_title, "Meta Title")
+                            }
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -239,12 +276,20 @@ export function ProductPreview() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="meta_description" className="flex items-center justify-between">
+                        <Label
+                          htmlFor="meta_description"
+                          className="flex items-center justify-between"
+                        >
                           Meta Description
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(product.meta_description, "Meta Description")}
+                            onClick={() =>
+                              copyToClipboard(
+                                product.meta_description,
+                                "Meta Description"
+                              )
+                            }
                             className="h-6 w-6 p-0"
                           >
                             <Copy className="h-3 w-3" />
@@ -291,12 +336,16 @@ export function ProductPreview() {
                   {/* Preview Card */}
                   <Card className="border-blue-200 bg-blue-50">
                     <CardHeader>
-                      <CardTitle className="text-lg text-blue-900">HTML Preview</CardTitle>
+                      <CardTitle className="text-lg text-blue-900">
+                        HTML Preview
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div
                         className="prose prose-sm max-w-none text-sm"
-                        dangerouslySetInnerHTML={{ __html: product.description }}
+                        dangerouslySetInnerHTML={{
+                          __html: product.description,
+                        }}
                       />
                     </CardContent>
                   </Card>
@@ -308,8 +357,9 @@ export function ProductPreview() {
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-yellow-600">⚠️</span>
                   <p className="text-sm text-yellow-800 font-medium">
-                    This is <strong>AI-generated demo data</strong> for testing purposes only.
-                    Review and modify as needed before using in production.
+                    This is <strong>AI-generated demo data</strong> for testing
+                    purposes only. Review and modify as needed before using in
+                    production.
                   </p>
                 </div>
               </div>
