@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { v4 as uuid } from "uuid";
 import { ProductContent } from "@/types";
 import { generateProductFromImage } from "@/lib/ai";
 
 // Rate limiting configuration
-const RATE_LIMIT_REQUESTS = 3;
+const RATE_LIMIT_REQUESTS = 5; // Free trial limit
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-const user = {
-  id: uuid(),
-};
 
 // Rate limiting helper
 async function checkRateLimit(
@@ -20,16 +15,6 @@ async function checkRateLimit(
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW);
 
-  try {
-    await supabase.from("ai_requests").insert({
-      user_id: userId,
-      image_data: "",
-      generated_content: {},
-      created_at: now.toISOString(),
-    });
-  } catch (error) {
-    console.log(`debug:error`, error);
-  }
 
   try {
     const { data: requests, error } = await supabase
@@ -108,6 +93,22 @@ export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
     const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        {
+          error: "Authentication required",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
@@ -231,6 +232,18 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
 
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
     const userHistory = await getUserHistory(user.id, supabase);

@@ -188,6 +188,9 @@ export async function POST(request: NextRequest) {
           "X-RateLimit-Reset": new Date(
             Date.now() + RATE_LIMIT_WINDOW
           ).toISOString(),
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       }
     );
@@ -240,6 +243,12 @@ export async function GET(request: NextRequest) {
         product_type: h.generated_content?.product_type || "Unknown",
         created_at: h.created_at,
       })),
+    }, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
     });
   } catch (error) {
     console.error("GET API Error:", error);
