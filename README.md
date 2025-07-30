@@ -61,7 +61,7 @@ You can manage your plan at:
 - Supabase (auth + DB)
 - OpenAI API
 
-### Command
+### Commands/Prompts
 
 ```sh
 # Claude prompts
@@ -73,6 +73,9 @@ npx claude "Use the documentation inside `.claude/features/api-integration.md`, 
 # For shadcn to add component
 npx shadcn add sonner
 ```
+
+For external api, having token but the request is not authenticated
+External API Generate: Request processed {"endpoint":"external/generate","timestamp":"2025-07-30T10:43:12.172Z","user":null}
 
 ---
 

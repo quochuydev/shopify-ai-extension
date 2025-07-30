@@ -34,14 +34,18 @@ class RealAIEngine {
         formData.append("hints", options.hints);
       }
 
-      console.log("📤 Sending request to API endpoint...");
+      const authToken = await this.getAuthToken();
+
+      console.log("📤 Sending request to API endpoint...", {
+        hasToken: !!authToken,
+      });
 
       const response = await fetch(`${this.baseUrl}/api/external/generate`, {
         method: "POST",
         body: formData,
         headers: {
-          'Authorization': `Bearer ${await this.getAuthToken()}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       const result = await response.json();
@@ -98,8 +102,8 @@ class RealAIEngine {
       const response = await fetch(`${this.baseUrl}/api/external/generate`, {
         method: "GET",
         headers: {
-          'Authorization': `Bearer ${await this.getAuthToken()}`
-        }
+          Authorization: `Bearer ${await this.getAuthToken()}`,
+        },
       });
 
       if (response.ok) {
@@ -116,8 +120,8 @@ class RealAIEngine {
 
   async getAuthToken() {
     return new Promise((resolve) => {
-      chrome.storage.local.get(['auth_token'], (result) => {
-        resolve(result.auth_token || '');
+      chrome.storage.local.get(["auth_token"], (result) => {
+        resolve(result.auth_token || "");
       });
     });
   }

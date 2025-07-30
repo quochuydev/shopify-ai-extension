@@ -1,5 +1,5 @@
 import { generateProductFromImage } from "@/lib/ai";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
 // Rate limiting configuration for external API (extension usage)
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get authenticated user via Bearer token (for extension usage)
     const authHeader = request.headers.get("authorization");
-    
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
         {
@@ -87,12 +87,21 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const supabase = await createClient();
 
+    // Create Supabase client and set the session with the JWT token
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Set the session using the JWT token
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser(token);
+
+    result.user = user;
+    result.authError = authError;
 
     if (authError || !user) {
       return NextResponse.json(
@@ -105,9 +114,6 @@ export async function POST(request: NextRequest) {
         }
       );
     }
-
-    result.userId = user.id;
-    result.userEmail = user.email;
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
@@ -175,7 +181,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const base64Image = buffer.toString("base64");
 
-    // Get user history for context 
+    // Get user history for context
     const userHistory = await getUserHistory(user.id, supabase);
     result.userHistoryCount = userHistory.length;
 
@@ -245,7 +251,10 @@ export async function POST(request: NextRequest) {
       }
     );
   } finally {
-    console.log("External API Generate: Request processed", JSON.stringify(result));
+    console.log(
+      "External API Generate: Request processed",
+      JSON.stringify(result)
+    );
   }
 }
 
@@ -254,29 +263,42 @@ export async function GET(request: NextRequest) {
   try {
     // Get authenticated user via Bearer token (for extension usage)
     const authHeader = request.headers.get("authorization");
-    
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
-        { 
+        {
           error: "Authentication required",
-          endpoint: "external/generate"
+          endpoint: "external/generate",
         },
         { status: 401 }
       );
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const supabase = await createClient();
+
+    // Create Supabase client with the JWT token for authentication
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(token);
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
-        { 
+        {
           error: "Authentication required",
-          endpoint: "external/generate"
+          endpoint: "external/generate",
         },
         { status: 401 }
       );
@@ -285,26 +307,29 @@ export async function GET(request: NextRequest) {
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
     const userHistory = await getUserHistory(user.id, supabase);
 
-    return NextResponse.json({
-      endpoint: "external/generate",
-      rate_limit: {
-        limit: RATE_LIMIT_REQUESTS,
-        remaining: rateLimitCheck.remaining,
-        reset_time: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
+    return NextResponse.json(
+      {
+        endpoint: "external/generate",
+        rate_limit: {
+          limit: RATE_LIMIT_REQUESTS,
+          remaining: rateLimitCheck.remaining,
+          reset_time: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
+        },
+        history_count: userHistory.length,
+        recent_generations: userHistory.slice(0, 3).map((h) => ({
+          title: h.generated_content?.title || "Untitled",
+          product_type: h.generated_content?.product_type || "Unknown",
+          created_at: h.created_at,
+        })),
       },
-      history_count: userHistory.length,
-      recent_generations: userHistory.slice(0, 3).map((h) => ({
-        title: h.generated_content?.title || "Untitled",
-        product_type: h.generated_content?.product_type || "Unknown",
-        created_at: h.created_at,
-      })),
-    }, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
+    );
   } catch (error) {
     console.error("External API GET Error:", error);
     return NextResponse.json(
