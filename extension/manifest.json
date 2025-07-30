@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Shopify AI Helper",
+  "version": "1.0",
+  "description": "Drag image to generate product details using AI",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://admin.shopify.com/*",
+        "http://localhost:3001/*",
+        "https://shopify-ai-extension.vercel.app/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "drag.js",
+        "drag.css",
+        "configuration.js",
+        "demoAI.js",
+        "realAI.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
