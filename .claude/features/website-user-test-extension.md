@@ -8,13 +8,14 @@ This document outlines how users are able to test the **Shopify AI Extension** i
 
 ## ✅ Flow (Step-by-Step)
 
-- When user signin, user are able to drag and drop product image to generate product details
+- When user signin in Website (`./app/`)
+  - The user see the Extension on the bottom-left, user are able to drag and drop product image to generate product details
 - After the extension process, a dialog will be displayed to show the generated product details
   - For testing purpose, an user account just can do it ONLY 5 TIMES as Free Trial.
-- For the dialog UI (file: `components/product-preview.tsx`)
+- For the dialog UI in Website (file: `components/product-preview.tsx`)
   - Use the component from `components/ui/dialog`
   - width and height 80%, z-index high
-  - Data will be filled in the input, text area, markdown or display as tags
+  - Data will be filled in the Input `components/ui/input`, Textarea `components/ui/textarea`, markdown or display as tags
   - Example data response:
 
 ```json
@@ -40,4 +41,4 @@ This document outlines how users are able to test the **Shopify AI Extension** i
 
 - Handle authentication
 - Handle authorization
-- Handle user usage
+- Handle user usage, toast notification with `components/ui/sonner`

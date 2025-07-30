@@ -1,6 +1,6 @@
 "use client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type ProductProps = {
   title: string;
@@ -36,9 +36,8 @@ export function ProductPreview() {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(false)}>
       <DialogContent className="min-w-[80%] min-h-[80%] z-[99999]">
-        {JSON.stringify(product)}
         {product && (
-          <div className="hidden max-w-2xl mx-auto p-4 bg-white rounded-lg space-y-4">
+          <div className="max-w-2xl mx-auto p-4 bg-white rounded-lg space-y-4">
             <h1 className="text-2xl font-bold text-gray-900">
               {product.title}
             </h1>

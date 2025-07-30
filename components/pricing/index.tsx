@@ -111,7 +111,7 @@ export default function PricingPage() {
             <Bot className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900">
-            Shopify AI Helper
+            Shopify AI Extension
           </h1>
         </div>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

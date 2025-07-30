@@ -61,6 +61,16 @@ You can manage your plan at:
 - Supabase (auth + DB)
 - OpenAI API
 
+### Command
+
+```sh
+# For claude to implement feature
+npx claude "Use the documentation inside `.claude/features/website.md`, Implement feature by update/or create new files"
+
+# For shadcn to add component
+npx shadcn add sonner
+```
+
 ---
 
 ## 📦 Repositories

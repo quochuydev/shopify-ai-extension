@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Shopify AI Helper",
+  "name": "Shopify AI Extension",
   "version": "1.0",
   "description": "Drag image to generate product details using AI",
   "permissions": ["storage", "activeTab", "scripting"],
