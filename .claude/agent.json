@@ -1,0 +1,13 @@
+{
+  "name": "Claude Shopify Assistant",
+  "model": "claude-3-sonnet-20240229",
+  "entry": "shopify-ai-extension",
+  "include": ["app", "lib", "extension"],
+  "exclude": ["node_modules", ".next", ".git"],
+  "temperature": 0.4,
+  "max_tokens": 2048,
+  "tooling": {
+    "edit": true,
+    "shell": false
+  }
+}
