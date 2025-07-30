@@ -62,4 +62,19 @@ window.addEventListener("message", async (event) => {
       });
     }
   }
+
+  if (event.data.type === "CLEAR_AUTH_TOKEN") {
+    chrome.storage.local.remove(["accessToken", "userEmail"], () => {
+      console.log("🚪 Auth token cleared");
+
+      window.postMessage(
+        {
+          type: "AUTH_STATUS_RESPONSE",
+          accessToken: null,
+          userEmail: null,
+        },
+        "*"
+      );
+    });
+  }
 });

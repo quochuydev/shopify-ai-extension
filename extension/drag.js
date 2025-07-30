@@ -150,7 +150,7 @@ logo.textContent = "🤖";
 
 const title = document.createElement("h3");
 title.className = "extension-title";
-title.textContent = "AI Helper";
+title.textContent = "AI";
 
 headerLeft.appendChild(logo);
 headerLeft.appendChild(title);
@@ -169,6 +169,12 @@ const userInfo = document.createElement("div");
 userInfo.className = "user-info";
 userInfo.textContent = "Loading...";
 
+const logoutBtn = document.createElement("button");
+logoutBtn.className = "logout-btn";
+logoutBtn.innerHTML = "⏻";
+logoutBtn.title = "Logout from AI extension";
+logoutBtn.style.display = "none";
+
 const minimizeBtn = document.createElement("button");
 minimizeBtn.className = "minimize-btn";
 minimizeBtn.textContent = "−";
@@ -176,6 +182,7 @@ minimizeBtn.title = "Minimize";
 
 headerControls.appendChild(loginBtn);
 headerControls.appendChild(userInfo);
+headerControls.appendChild(logoutBtn);
 headerControls.appendChild(minimizeBtn);
 
 header.appendChild(headerLeft);
@@ -545,10 +552,12 @@ window.addEventListener("message", (event) => {
 function updateAuthUI(authenticated, email = null) {
   if (authenticated) {
     loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
     userInfo.textContent = email || "Logged in";
     userInfo.style.display = "block";
   } else {
     loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
     userInfo.textContent = "Not logged in";
     userInfo.style.display = "none";
   }
@@ -584,6 +593,30 @@ loginBtn.addEventListener("click", function () {
     "login",
     "width=400,height=600,scrollbars=yes,resizable=yes"
   );
+});
+
+// Logout button event listener
+logoutBtn.addEventListener("click", function () {
+  // Clear stored authentication data
+  context.accessToken = null;
+  context.userEmail = null;
+
+  // Clear from Chrome storage
+  window.postMessage(
+    {
+      type: "CLEAR_AUTH_TOKEN",
+    },
+    "*"
+  );
+
+  // Update UI to logged out state
+  updateAuthUI(false);
+  updateGenerateSection(false);
+
+  // Show success message
+  showStatus("Successfully logged out!", "success");
+
+  console.log("🚪 User logged out from AI extension");
 });
 
 // API function to generate product from image using the real API
