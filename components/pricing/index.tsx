@@ -21,6 +21,7 @@ import { ethers } from "ethers";
 import { Bot, Check, ExternalLink, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Typewriter } from "@/components/typewriter";
 
 declare global {
   interface Window {
@@ -207,19 +208,30 @@ export default function PricingPage() {
           <div className="p-3 bg-shopify-green rounded-lg mr-4">
             <Bot className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900">
+          <h1
+            className="text-4xl font-bold text-gray-900"
+            data-cy="pricing-title"
+          >
             Shopify AI Extension
           </h1>
         </div>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          Supercharge your Shopify store with AI-powered tools that help you
-          sell more, work smarter, and grow faster. Choose the plan that fits
-          your needs.
+          <Typewriter
+            text="Supercharge your Shopify store with AI-powered tools that help you sell more, work smarter, and grow faster. Choose the plan that fits your needs."
+            speed={30}
+            delay={500}
+            className="inline"
+            data-cy="pricing-description"
+          />
         </p>
         <p className="text-sm text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          Automatically generate compelling, SEO-optimized product descriptions
-          that convert visitors into customers. Watch how our AI analyzes your
-          product and creates professional descriptions in seconds.
+          <Typewriter
+            text="Automatically generate compelling, SEO-optimized product descriptions that convert visitors into customers. Watch how our AI analyzes your product and creates professional descriptions in seconds."
+            speed={25}
+            delay={4000}
+            className="inline"
+            data-cy="pricing-description-2"
+          />
         </p>
       </div>
 
