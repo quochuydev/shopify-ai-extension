@@ -2,8 +2,8 @@ import { generateProductFromImage } from "@/lib/ai";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
-// Rate limiting configuration
-const RATE_LIMIT_REQUESTS = 3;
+// Rate limiting configuration for external API (extension usage)
+const RATE_LIMIT_REQUESTS = 3; // Lower limit for external usage
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 // Rate limiting helper
@@ -24,7 +24,7 @@ async function checkRateLimit(
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Rate limit check error:", error);
+      console.error("External API Rate limit check error:", error);
       // On error, allow the request but log it
       return { allowed: true, remaining: RATE_LIMIT_REQUESTS - 1 };
     }
@@ -37,12 +37,12 @@ async function checkRateLimit(
       remaining,
     };
   } catch (error) {
-    console.error("Rate limit check failed:", error);
+    console.error("External API Rate limit check failed:", error);
     return { allowed: true, remaining: RATE_LIMIT_REQUESTS - 1 };
   }
 }
 
-// Get user's generation history (for future enhancement)
+// Get user's generation history
 async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
   try {
     const { data: history, error } = await supabase
@@ -53,39 +53,61 @@ async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
       .limit(10);
 
     if (error) {
-      console.error("Failed to fetch user history:", error);
+      console.error("External API Failed to fetch user history:", error);
       return [];
     }
 
     return history || [];
   } catch (error) {
-    console.error("History fetch failed:", error);
+    console.error("External API History fetch failed:", error);
     return [];
   }
 }
 
 export async function POST(request: NextRequest) {
-  const result: any = {};
+  const result: any = {
+    endpoint: "external/generate",
+    timestamp: new Date().toISOString(),
+  };
 
   try {
-    // Get authenticated user
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
+    // Get authenticated user via Bearer token (for extension usage)
+    const authHeader = request.headers.get("authorization");
+    
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json(
         {
           error: "Authentication required",
+          message: "Please provide a valid Bearer token for extension access",
         },
         {
           status: 401,
         }
       );
     }
+
+    const token = authHeader.replace("Bearer ", "");
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json(
+        {
+          error: "Authentication required",
+          message: "Invalid or expired Bearer token",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    result.userId = user.id;
+    result.userEmail = user.email;
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
@@ -95,8 +117,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Rate limit exceeded",
-          message: `You have reached your limit of ${RATE_LIMIT_REQUESTS} requests per day. Please try again tomorrow.`,
+          message: `Extension usage limit reached: ${RATE_LIMIT_REQUESTS} requests per day. Please try again tomorrow.`,
           remaining: rateLimitCheck.remaining,
+          resetTime: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
         },
         {
           status: 429,
@@ -106,6 +129,9 @@ export async function POST(request: NextRequest) {
             "X-RateLimit-Reset": new Date(
               Date.now() + RATE_LIMIT_WINDOW
             ).toISOString(),
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
           },
         }
       );
@@ -116,13 +142,14 @@ export async function POST(request: NextRequest) {
     const imageFile = formData.get("image") as File;
     const hints = formData.get("hints") as string; // Optional product hints
 
-    result.imageFile = imageFile;
-    result.hints = hints;
+    result.imageFile = !!imageFile;
+    result.hints = !!hints;
 
     if (!imageFile) {
       return NextResponse.json(
         {
           error: "No image provided",
+          message: "Please upload an image file for product generation",
         },
         {
           status: 400,
@@ -134,7 +161,8 @@ export async function POST(request: NextRequest) {
     if (!imageFile.type.startsWith("image/")) {
       return NextResponse.json(
         {
-          error: "Invalid file type. Please upload an image.",
+          error: "Invalid file type",
+          message: "Please upload a valid image file (JPG, PNG, GIF)",
         },
         {
           status: 400,
@@ -147,25 +175,31 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const base64Image = buffer.toString("base64");
 
-    // Get user history for context (future enhancement)
+    // Get user history for context 
     const userHistory = await getUserHistory(user.id, supabase);
-    result.userHistory = userHistory;
+    result.userHistoryCount = userHistory.length;
 
-    // Generate product content
+    // Generate product content using OpenAI
     const productContent = await generateProductFromImage(
       base64Image,
       userHistory
     );
-    result.productContent = productContent;
+    result.productGenerated = !!productContent;
 
     // Log the request for rate limiting and history
-    const requestedLog = await supabase.from("ai_requests").insert({
+    const requestLog = await supabase.from("ai_requests").insert({
       user_id: user.id,
-      image_data: base64Image.substring(0, 100) + "...",
+      image_data: base64Image.substring(0, 100) + "...", // Store truncated for history
       generated_content: productContent,
       created_at: new Date().toISOString(),
+      endpoint: "external/generate",
+      hints: hints || null,
     });
-    result.requestedLog = requestedLog.data;
+    result.requestLogged = !requestLog.error;
+
+    if (requestLog.error) {
+      console.error("External API Failed to log request:", requestLog.error);
+    }
 
     // Update rate limit headers
     const updatedRateLimit = await checkRateLimit(user.id, supabase);
@@ -176,8 +210,10 @@ export async function POST(request: NextRequest) {
         success: true,
         data: productContent,
         meta: {
+          endpoint: "external/generate",
           remaining_requests: updatedRateLimit.remaining,
           hints_used: !!hints,
+          user_history_count: userHistory.length,
         },
       },
       {
@@ -195,35 +231,53 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("API Generate Error:", error);
+    console.error("External API Generate Error:", error);
 
     return NextResponse.json(
       {
         error: "Internal server error",
         message:
           error instanceof Error ? error.message : "Unknown error occurred",
+        endpoint: "external/generate",
       },
       {
         status: 500,
       }
     );
   } finally {
-    console.log("API Generate: Request started", result);
+    console.log("External API Generate: Request processed", JSON.stringify(result));
   }
 }
 
 // GET endpoint for checking rate limit status
 export async function GET(request: NextRequest) {
   try {
+    // Get authenticated user via Bearer token (for extension usage)
+    const authHeader = request.headers.get("authorization");
+    
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { 
+          error: "Authentication required",
+          endpoint: "external/generate"
+        },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
     const supabase = await createClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Authentication required" },
+        { 
+          error: "Authentication required",
+          endpoint: "external/generate"
+        },
         { status: 401 }
       );
     }
@@ -232,6 +286,7 @@ export async function GET(request: NextRequest) {
     const userHistory = await getUserHistory(user.id, supabase);
 
     return NextResponse.json({
+      endpoint: "external/generate",
       rate_limit: {
         limit: RATE_LIMIT_REQUESTS,
         remaining: rateLimitCheck.remaining,
@@ -251,10 +306,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("GET API Error:", error);
+    console.error("External API GET Error:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
+        endpoint: "external/generate",
       },
       {
         status: 500,

@@ -637,58 +637,6 @@ logoutBtn.addEventListener("click", function () {
 async function generateProductFromImageAPI(imageFile) {
   console.log(`debug:window.location.hostname`, window.location.hostname);
 
-  if (
-    "shopify-ai-extension.vercel.app" === window.location.hostname ||
-    "localhost" === window.location.hostname
-  ) {
-    try {
-      setProcessingState(true, "Generating product details...");
-      updateProgress(30);
-
-      const aiEngine = new DemoAIEngine();
-
-      const generatedContent = await aiEngine.generateProductFromText(
-        "Generate a random product",
-        {
-          delay: 800,
-        }
-      );
-
-      updateProgress(60);
-
-      console.log(`debug:generatedContent`, generatedContent);
-
-      window.postMessage(
-        {
-          type: "GENERATED_CONTENT",
-          content: generatedContent,
-        },
-        "*"
-      );
-
-      updateProgress(80);
-
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      showSuggestedCategories(generatedContent.collections);
-
-      updateProgress(100);
-
-      showStatus("Product details generated successfully!", "success");
-
-      setTimeout(() => {
-        setProcessingState(false);
-        hideProgress();
-      }, 1500);
-    } catch (error) {
-      console.error("🔴 AI Error:", error);
-      showStatus("Failed to generate product details", "error");
-      setProcessingState(false);
-      hideProgress();
-    }
-    return;
-  }
-
   const baseUrl = window.location.hostname.includes("localhost")
     ? "http://localhost:3000"
     : "https://shopify-ai-extension.vercel.app";

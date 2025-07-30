@@ -88,10 +88,13 @@ async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
 }
 
 export async function POST(request: NextRequest) {
-  const result: any = {};
+  const result: any = {
+    endpoint: "generate",
+    timestamp: new Date().toISOString(),
+  };
 
   try {
-    // Get authenticated user
+    // Get authenticated user via Supabase auth (cookie-based for website)
     const supabase = await createClient();
 
     const {
@@ -103,12 +106,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Authentication required",
+          message: "Please sign in to test the extension features",
         },
         {
           status: 401,
         }
       );
     }
+
+    result.userId = user.id;
+    result.userEmail = user.email;
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(user.id, supabase);
@@ -118,8 +125,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Rate limit exceeded",
-          message: `You have reached your limit of ${RATE_LIMIT_REQUESTS} requests per day. Please try again tomorrow.`,
+          message: `Website testing limit reached: ${RATE_LIMIT_REQUESTS} requests per day. Please try again tomorrow.`,
           remaining: rateLimitCheck.remaining,
+          resetTime: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
         },
         {
           status: 429,
@@ -139,13 +147,14 @@ export async function POST(request: NextRequest) {
     const imageFile = formData.get("image") as File;
     const hints = formData.get("hints") as string; // Optional product hints
 
-    result.imageFile = imageFile;
-    result.hints = hints;
+    result.imageFile = !!imageFile;
+    result.hints = !!hints;
 
     if (!imageFile) {
       return NextResponse.json(
         {
           error: "No image provided",
+          message: "Please upload an image file to test the extension",
         },
         {
           status: 400,
@@ -157,7 +166,8 @@ export async function POST(request: NextRequest) {
     if (!imageFile.type.startsWith("image/")) {
       return NextResponse.json(
         {
-          error: "Invalid file type. Please upload an image.",
+          error: "Invalid file type",
+          message: "Please upload a valid image file (JPG, PNG, GIF)",
         },
         {
           status: 400,

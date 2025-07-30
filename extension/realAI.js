@@ -36,10 +36,12 @@ class RealAIEngine {
 
       console.log("📤 Sending request to API endpoint...");
 
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
+      const response = await fetch(`${this.baseUrl}/api/external/generate`, {
         method: "POST",
         body: formData,
-        // credentials: "include",
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken()}`
+        }
       });
 
       const result = await response.json();
@@ -93,9 +95,11 @@ class RealAIEngine {
 
   async checkRateLimit() {
     try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
+      const response = await fetch(`${this.baseUrl}/api/external/generate`, {
         method: "GET",
-        // credentials: "include",
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken()}`
+        }
       });
 
       if (response.ok) {
@@ -108,6 +112,14 @@ class RealAIEngine {
       console.error("Failed to check rate limit:", error);
       return null;
     }
+  }
+
+  async getAuthToken() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['auth_token'], (result) => {
+        resolve(result.auth_token || '');
+      });
+    });
   }
 }
 
