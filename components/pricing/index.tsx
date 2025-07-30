@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { ethers } from "ethers";
-import { Bot, Check } from "lucide-react";
+import { Bot, Check, ExternalLink, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 declare global {
   interface Window {
@@ -38,7 +38,15 @@ export default function PricingPage() {
     walletAddress: string;
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasMetaMask, setHasMetaMask] = useState(false);
   const router = useRouter();
+
+  // Check MetaMask availability
+  useEffect(() => {
+    setHasMetaMask(
+      typeof window !== "undefined" && typeof window.ethereum !== "undefined"
+    );
+  }, []);
 
   // Calculate price based on usage (example: $0.10 per use)
   const pricePerUse = 0.1;
@@ -50,27 +58,90 @@ export default function PricingPage() {
     try {
       // Check if MetaMask is installed
       if (typeof window.ethereum === "undefined") {
-        alert("Please install MetaMask to make payments");
+        alert(
+          "Please install MetaMask from https://metamask.io to make payments. This feature requires a Web3 wallet."
+        );
+        setIsProcessing(false);
         return;
       }
 
+      // Check if we're on a supported network (for now, just warn about mainnet costs)
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+
+        if (network.chainId === BigInt(1)) {
+          const confirmed = confirm(
+            "⚠️ You're on Ethereum Mainnet. This will use real ETH and incur gas fees. Continue with payment?"
+          );
+          if (!confirmed) {
+            setIsProcessing(false);
+            return;
+          }
+        }
+      } catch (networkError) {
+        console.warn("Could not detect network:", networkError);
+      }
+
       // Request account access
-      await window.ethereum.request({ method: "eth_request_accounts" });
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+      } catch (accountError: any) {
+        if (accountError.code === 4001) {
+          alert(
+            "Please connect your MetaMask wallet to continue with payment."
+          );
+        } else {
+          alert("Failed to connect to MetaMask. Please try again.");
+        }
+        setIsProcessing(false);
+        return;
+      }
 
       // Create provider and signer
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      // Payment amounts (in ETH) // Assuming 1 ETH = $3000
+      // Payment amounts (in ETH) - Using current ETH price approximation
+      const ethPrice = 3000; // Approximate ETH price in USD
       const payPerUseAmount = (
-        Number.parseFloat(calculatedPrice) / 3000
+        Number.parseFloat(calculatedPrice) / ethPrice
       ).toFixed(6);
-      const unlimitedAmount = (29 / 3000).toFixed(6); // $29 / $3000 per ETH
+      const unlimitedAmount = (29 / ethPrice).toFixed(6); // $29 USD
 
       const amount =
         planType === "payPerUse" ? payPerUseAmount : unlimitedAmount;
-      const recipient = ""; // Replace with your wallet address
+
+      // TODO: Configure recipient address - this should be moved to environment variables
+      const recipient = process.env.NEXT_PUBLIC_PAYMENT_WALLET; // Example wallet
+
+      if (!recipient || recipient === "") {
+        alert("Payment system is not configured. Please contact support.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Validate recipient address
+      if (!ethers.isAddress(recipient)) {
+        alert("Invalid payment address configuration. Please contact support.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Confirm payment details with user
+      const confirmPayment = confirm(
+        `Confirm payment:\n\nPlan: ${
+          planType === "payPerUse" ? "Pay Per Use" : "Unlimited Pro"
+        }\nAmount: ${amount} ETH (~$${
+          planType === "payPerUse" ? calculatedPrice : "29"
+        })\n\nProceed with transaction?`
+      );
+
+      if (!confirmPayment) {
+        setIsProcessing(false);
+        return;
+      }
 
       // Send transaction
       const tx = await signer.sendTransaction({
@@ -78,11 +149,19 @@ export default function PricingPage() {
         value: ethers.parseEther(amount),
       });
 
+      // Show transaction submitted message
+      alert(
+        `Transaction submitted! Hash: ${tx.hash}\n\nWaiting for confirmation...`
+      );
+
       // Wait for transaction confirmation
       const receipt = await tx.wait();
 
       if (!receipt) {
-        alert("Transaction failed. Please try again.");
+        alert(
+          "Transaction failed or was not confirmed. Please check your wallet and try again."
+        );
+        setIsProcessing(false);
         return;
       }
 
@@ -94,9 +173,27 @@ export default function PricingPage() {
         walletAddress: userAddress,
       });
       setIsPaymentDialogOpen(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment failed:", error);
-      alert("Payment failed. Please try again.");
+
+      // Handle specific error types
+      if (error.code === 4001) {
+        alert("Transaction was rejected by user.");
+      } else if (error.code === -32603) {
+        alert("Transaction failed. You may not have enough ETH for gas fees.");
+      } else if (error.message?.includes("insufficient funds")) {
+        alert(
+          "Insufficient funds. Please ensure you have enough ETH for the payment and gas fees."
+        );
+      } else if (error.message?.includes("user rejected")) {
+        alert("Transaction was cancelled by user.");
+      } else {
+        alert(
+          `Payment failed: ${
+            error.message || "Unknown error"
+          }. Please try again or contact support.`
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -254,14 +351,36 @@ export default function PricingPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-3">
             <Button
-              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3"
+              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
               onClick={() => handlePayment("payPerUse")}
-              disabled={isProcessing}
+              disabled={isProcessing || !hasMetaMask}
             >
-              {isProcessing ? "Processing..." : "Start with Pay Per Use"}
+              <Wallet className="h-4 w-4" />
+              {isProcessing ? "Processing..." : "Pay with MetaMask"}
             </Button>
+
+            {!hasMetaMask && (
+              <div className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full border-shopify-green text-shopify-green hover:bg-shopify-green/5 font-medium py-3 flex items-center gap-2"
+                  onClick={() =>
+                    window.open("https://metamask.io/download/", "_blank")
+                  }
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Install MetaMask
+                </Button>
+              </div>
+            )}
+
+            <p className="text-xs text-gray-500 text-center">
+              {hasMetaMask
+                ? "💡 MetaMask detected - ready for crypto payment"
+                : "⚠️ MetaMask required for payment"}
+            </p>
           </CardFooter>
         </Card>
 
@@ -334,14 +453,36 @@ export default function PricingPage() {
               </p>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-3">
             <Button
-              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3"
+              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
               onClick={() => handlePayment("unlimited")}
-              disabled={isProcessing}
+              disabled={isProcessing || !hasMetaMask}
             >
-              {isProcessing ? "Processing..." : "Start Unlimited Pro"}
+              <Wallet className="h-4 w-4" />
+              {isProcessing ? "Processing..." : "Pay with MetaMask"}
             </Button>
+
+            {!hasMetaMask && (
+              <div className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full border-shopify-green text-shopify-green hover:bg-shopify-green/5 font-medium py-3 flex items-center gap-2"
+                  onClick={() =>
+                    window.open("https://metamask.io/download/", "_blank")
+                  }
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Install MetaMask
+                </Button>
+              </div>
+            )}
+
+            <p className="text-xs text-gray-500 text-center">
+              {hasMetaMask
+                ? "💡 MetaMask detected - ready for crypto payment"
+                : "⚠️ MetaMask required for payment"}
+            </p>
           </CardFooter>
         </Card>
       </div>
