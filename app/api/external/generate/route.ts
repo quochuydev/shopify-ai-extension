@@ -1,39 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
+import { generateProductFromImage } from "@/lib/ai";
 import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // Rate limiting configuration
 const RATE_LIMIT_REQUESTS = 3;
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Product template structure
-interface ProductContent {
-  title: string;
-  description: string;
-  price: string;
-  compare_at_price?: string;
-  sku: string;
-  weight: string;
-  variants: Array<{
-    price: string;
-    compare_at_price?: string;
-    sku: string;
-    weight: string;
-  }>;
-  meta_title: string;
-  meta_description: string;
-  status: string;
-  published_scope: string;
-  product_type: string;
-  vendor: string;
-  collections: string[];
-  tags: string;
-}
 
 // Rate limiting helper
 async function checkRateLimit(
@@ -71,29 +42,6 @@ async function checkRateLimit(
   }
 }
 
-// Log request for rate limiting and history
-async function logRequest(
-  userId: string,
-  imageData: string,
-  result: ProductContent,
-  supabase: any
-) {
-  try {
-    const { error } = await supabase.from("ai_requests").insert({
-      user_id: userId,
-      image_data: imageData.substring(0, 100) + "...", // Store truncated for history
-      generated_content: result,
-      created_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      console.error("Failed to log request:", error);
-    }
-  } catch (error) {
-    console.error("Request logging failed:", error);
-  }
-}
-
 // Get user's generation history (for future enhancement)
 async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
   try {
@@ -116,114 +64,13 @@ async function getUserHistory(userId: string, supabase: any): Promise<any[]> {
   }
 }
 
-async function generateProductFromImage(
-  imageBase64: string,
-  userHistory?: any[]
-): Promise<ProductContent> {
-  const systemPrompt = `You are a Shopify product assistant. Generate comprehensive product details from the uploaded image.
-
-${
-  userHistory && userHistory.length > 0
-    ? `User's previous products context (use for consistency in style/vendor if relevant):
-${userHistory
-  .slice(0, 3)
-  .map(
-    (h) =>
-      `- ${h.generated_content?.title || "Product"} (${
-        h.generated_content?.product_type || "N/A"
-      })`
-  )
-  .join("\n")}`
-    : ""
-}
-
-Return a JSON object with the following structure:
-{
-  "title": "SEO-optimized product title (60 chars max)",
-  "description": "HTML formatted description with benefits and features",
-  "price": "suggested price as string",
-  "compare_at_price": "optional higher price for discount",
-  "sku": "generated SKU code",
-  "weight": "estimated weight in kg as string",
-  "variants": [{"price": "", "compare_at_price": "", "sku": "", "weight": ""}],
-  "meta_title": "SEO title",
-  "meta_description": "SEO description (160 chars max)",
-  "status": "published",
-  "published_scope": "web",
-  "product_type": "product category",
-  "vendor": "suggested brand/vendor name",
-  "collections": ["category1", "category2", "category3"],
-  "tags": "comma-separated tags"
-}
-
-Make it compelling, accurate, and ready for e-commerce.`;
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Generate complete product details for this image:",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${imageBase64}`,
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: 1500,
-      temperature: 0.7,
-    });
-
-    const content = response.choices[0].message?.content;
-    if (!content) {
-      throw new Error("No response from OpenAI");
-    }
-
-    // Extract JSON from response (handle potential markdown formatting)
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No valid JSON found in response");
-    }
-
-    const productData = JSON.parse(jsonMatch[0]);
-
-    // Validate required fields
-    const requiredFields = ["title", "description", "price", "product_type"];
-    for (const field of requiredFields) {
-      if (!productData[field]) {
-        throw new Error(`Missing required field: ${field}`);
-      }
-    }
-
-    return productData as ProductContent;
-  } catch (error) {
-    console.error("OpenAI generation error:", error);
-    throw new Error(
-      `Failed to generate product content: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`
-    );
-  }
-}
-
 export async function POST(request: NextRequest) {
   const result: any = {};
 
   try {
     // Get authenticated user
     const supabase = await createClient();
+
     const {
       data: { user },
       error: authError,
@@ -231,8 +78,12 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
+        {
+          error: "Authentication required",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
@@ -269,14 +120,25 @@ export async function POST(request: NextRequest) {
     result.hints = hints;
 
     if (!imageFile) {
-      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "No image provided",
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
     // Validate image
     if (!imageFile.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: "Invalid file type. Please upload an image." },
-        { status: 400 }
+        {
+          error: "Invalid file type. Please upload an image.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -297,8 +159,13 @@ export async function POST(request: NextRequest) {
     result.productContent = productContent;
 
     // Log the request for rate limiting and history
-    await logRequest(user.id, base64Image, productContent, supabase);
-    result.logRequest = true;
+    const requestedLog = await supabase.from("ai_requests").insert({
+      user_id: user.id,
+      image_data: base64Image.substring(0, 100) + "...",
+      generated_content: productContent,
+      created_at: new Date().toISOString(),
+    });
+    result.requestedLog = requestedLog.data;
 
     // Update rate limit headers
     const updatedRateLimit = await checkRateLimit(user.id, supabase);
@@ -333,7 +200,9 @@ export async function POST(request: NextRequest) {
         message:
           error instanceof Error ? error.message : "Unknown error occurred",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   } finally {
     console.log("API Generate: Request started", result);

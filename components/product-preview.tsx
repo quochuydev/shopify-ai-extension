@@ -1,27 +1,11 @@
 "use client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ProductContent } from "@/types";
 import { useEffect, useState } from "react";
-
-type ProductProps = {
-  title: string;
-  description: string;
-  price: string;
-  compare_at_price?: string;
-  sku: string;
-  weight: string;
-  meta_title: string;
-  meta_description: string;
-  status: string;
-  published_scope: string;
-  product_type: string;
-  vendor: string;
-  collections: string[];
-  tags: string;
-};
 
 export function ProductPreview() {
   const [open, setOpen] = useState(false);
-  const [product, setProduct] = useState<ProductProps | null>(null);
+  const [product, setProduct] = useState<ProductContent | null>(null);
 
   useEffect(() => {
     window.addEventListener("message", (event) => {

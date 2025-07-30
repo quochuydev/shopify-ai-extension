@@ -61,7 +61,7 @@ The Chrome extension (`extension/manifest.json`) targets:
 
 - Shopify admin pages: https://admin.shopify.com/*
 - Live Website: https://shopify-ai-extension.vercel.app
-- Download Extension: https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.1
+- Download Extension: https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.x
 
 ### Key Features
 
