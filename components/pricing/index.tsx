@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { ethers } from "ethers";
-import { Bot, Check, ExternalLink, Play } from "lucide-react";
+import { Bot, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

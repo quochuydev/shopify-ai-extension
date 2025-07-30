@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ExtensionTester } from "@/components/extension-tester";
 import { ProductPreview } from "@/components/product-preview";
+import { FloatingExtension } from "@/components/floating-extension";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -37,6 +38,7 @@ export default async function ProtectedPage() {
           <main className="flex-1 flex flex-col gap-6">
             <ExtensionTester />
             <ProductPreview />
+            <FloatingExtension />
           </main>
         </div>
       </div>
