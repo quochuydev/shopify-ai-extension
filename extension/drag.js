@@ -518,12 +518,14 @@ window.addEventListener("message", (event) => {
     if (event.data.accessToken) {
       console.log("✅ User is authenticated. Token:", event.data.accessToken);
       context.accessToken = event.data.accessToken;
+      context.userEmail = event.data.userEmail;
 
       updateAuthUI(true, event.data.userEmail);
       updateGenerateSection(true);
     } else {
       console.log("🚫 Not authenticated");
       context.accessToken = null;
+      context.userEmail = null;
 
       updateAuthUI(false);
       updateGenerateSection(false);
@@ -541,6 +543,7 @@ window.addEventListener("message", (event) => {
     );
 
     context.accessToken = event.data.accessToken;
+    context.userEmail = event.data.userEmail;
 
     updateAuthUI(true, event.data.userEmail);
     updateGenerateSection(true);
@@ -588,11 +591,22 @@ loginBtn.addEventListener("click", function () {
   const returnUrl = encodeURIComponent(`${baseUrl}/auth/extension-callback`);
   const loginUrl = `${baseUrl}/auth/login?returnUrl=${returnUrl}`;
 
-  window.open(
+  const loginPopup = window.open(
     loginUrl,
     "login",
     "width=400,height=600,scrollbars=yes,resizable=yes"
   );
+
+  // Poll to detect when popup closes
+  const checkClosed = setInterval(() => {
+    if (loginPopup.closed) {
+      clearInterval(checkClosed);
+      // Refresh auth status when popup closes
+      setTimeout(() => {
+        window.postMessage({ type: "CHECK_AUTH_STATUS" }, "*");
+      }, 1000); // Small delay to ensure any auth data is saved
+    }
+  }, 1000);
 });
 
 // Logout button event listener
