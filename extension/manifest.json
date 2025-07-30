@@ -8,7 +8,7 @@
     {
       "matches": [
         "https://admin.shopify.com/*",
-        "http://localhost:3001/*",
+        "http://localhost:3000/*",
         "https://shopify-ai-extension.vercel.app/*"
       ],
       "js": ["content.js"],

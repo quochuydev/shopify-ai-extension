@@ -573,7 +573,7 @@ function updateGenerateSection(authenticated) {
 // Login button event listener
 loginBtn.addEventListener("click", function () {
   const baseUrl = window.location.hostname.includes("localhost")
-    ? "http://localhost:3001"
+    ? "http://localhost:3000"
     : "https://shopify-ai-extension.vercel.app";
 
   const returnUrl = encodeURIComponent(`${baseUrl}/auth/extension-callback`);
@@ -643,7 +643,7 @@ async function generateProductFromImageAPI(imageFile) {
   }
 
   const baseUrl = window.location.hostname.includes("localhost")
-    ? "http://localhost:3001"
+    ? "http://localhost:3000"
     : "https://shopify-ai-extension.vercel.app";
 
   const formData = new FormData();

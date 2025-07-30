@@ -18,7 +18,7 @@ class RealAIEngine {
       }
     }
 
-    return "http://localhost:3001";
+    return "http://localhost:3000";
   }
 
   async generateProductFromImage(imageFile, options = {}) {
