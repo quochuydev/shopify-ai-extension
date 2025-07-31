@@ -26,6 +26,9 @@ export function ProductPreview() {
         setOpen(true);
         console.log("debug:generatedContent", event.data.content);
         setProduct(event.data.content);
+        
+        // Refresh user plan data since a credit was consumed
+        window.dispatchEvent(new CustomEvent('planUpdated'));
       }
     });
   }, []);

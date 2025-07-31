@@ -348,6 +348,16 @@ async function handleImageUpload(file) {
         },
         "*"
       );
+
+      // Complete the progress for website usage
+      updateProgress(100);
+      showStatus("Product generated from image!", "success");
+
+      setTimeout(() => {
+        setProcessingState(false);
+        hideProgress();
+      }, 1500);
+
       return;
     } else {
       fillShopifyProductForm(generatedContent);
@@ -662,9 +672,7 @@ async function generateProductFromImageAPI(imageFile) {
     }
 
     if (response.status === 429) {
-      throw new Error(
-        errorData.message || "Rate limit exceeded. Please try again tomorrow."
-      );
+      throw new Error(errorData.message || "Rate limit exceeded.");
     }
 
     throw new Error(errorData.message || `API Error: ${response.status}`);
