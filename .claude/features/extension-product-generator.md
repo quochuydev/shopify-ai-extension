@@ -68,7 +68,7 @@ Return a JSON object with the following structure:
 Make it compelling, accurate, and ready for e-commerce.`;
 
 const response = await openai.chat.completions.create({
-  model: "gpt-4-vision-preview",
+  model: "gpt-4o-mini",
   messages: [
     {
       role: "system",

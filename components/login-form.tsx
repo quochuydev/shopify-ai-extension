@@ -34,6 +34,8 @@ export function LoginForm({
     setError(null);
 
     try {
+      // await supabase.auth.signOut();
+
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -45,7 +47,7 @@ export function LoginForm({
 
       if (returnUrl) {
         // If it's an extension callback, we need to handle it differently
-        if (returnUrl.includes('/auth/extension-callback')) {
+        if (returnUrl.includes("/auth/extension-callback")) {
           window.location.href = returnUrl;
         } else {
           window.location.href = returnUrl;

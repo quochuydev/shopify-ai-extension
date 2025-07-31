@@ -532,24 +532,6 @@ window.addEventListener("message", (event) => {
     }
   }
 
-  if (event.data?.type === "EXTENSION_AUTH_SUCCESS") {
-    window.postMessage(
-      {
-        type: "SAVE_AUTH_TOKEN",
-        accessToken: event.data.accessToken,
-        userEmail: event.data.userEmail,
-      },
-      "*"
-    );
-
-    context.accessToken = event.data.accessToken;
-    context.userEmail = event.data.userEmail;
-
-    updateAuthUI(true, event.data.userEmail);
-    updateGenerateSection(true);
-
-    showStatus("Successfully logged in!", "success");
-  }
 });
 
 function updateAuthUI(authenticated, email = null) {
@@ -597,14 +579,65 @@ loginBtn.addEventListener("click", function () {
     "width=400,height=600,scrollbars=yes,resizable=yes"
   );
 
-  // Poll to detect when popup closes
+  // Listen for messages from the popup
+  const messageListener = (event) => {
+    // Verify origin for security
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://shopify-ai-extension.vercel.app"
+    ];
+    
+    if (!allowedOrigins.includes(event.origin)) {
+      return;
+    }
+
+    if (event.data?.type === "EXTENSION_AUTH_SUCCESS") {
+      console.log("✅ Received auth success from popup:", event.data);
+      
+      // Save auth data
+      window.postMessage(
+        {
+          type: "SAVE_AUTH_TOKEN",
+          accessToken: event.data.accessToken,
+          userEmail: event.data.userEmail,
+        },
+        "*"
+      );
+
+      // Update local context
+      context.accessToken = event.data.accessToken;
+      context.userEmail = event.data.userEmail;
+
+      // Update UI
+      updateAuthUI(true, event.data.userEmail);
+      updateGenerateSection(true);
+
+      showStatus("Successfully logged in!", "success");
+      
+      // Clean up
+      window.removeEventListener("message", messageListener);
+      
+      // Close popup if still open
+      if (loginPopup && !loginPopup.closed) {
+        loginPopup.close();
+      }
+    }
+  };
+
+  // Add message listener
+  window.addEventListener("message", messageListener);
+
+  // Poll to detect when popup closes (fallback)
   const checkClosed = setInterval(() => {
     if (loginPopup.closed) {
       clearInterval(checkClosed);
-      // Refresh auth status when popup closes
+      // Remove listener if popup closed without success
+      window.removeEventListener("message", messageListener);
+      
+      // Check auth status in case authentication succeeded
       setTimeout(() => {
         window.postMessage({ type: "CHECK_AUTH_STATUS" }, "*");
-      }, 1000); // Small delay to ensure any auth data is saved
+      }, 1000);
     }
   }, 1000);
 });

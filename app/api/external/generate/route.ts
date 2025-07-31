@@ -300,7 +300,9 @@ export async function GET(request: NextRequest) {
           error: "Authentication required",
           endpoint: "external/generate",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
