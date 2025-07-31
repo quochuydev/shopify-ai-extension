@@ -72,10 +72,9 @@ export default function PricingPage() {
 
     try {
       // Use fake MetaMask payment for development
-      const FAKE_METAMASK = true;
+      const FAKE_METAMASK = false;
 
       if (FAKE_METAMASK) {
-        // Simulate fake MetaMask payment
         const actualPlanType = planType === "unlimited" ? "pro" : "usage";
         const credits = planType === "payPerUse" ? usageCount[0] : undefined;
 
@@ -98,7 +97,6 @@ export default function PricingPage() {
           throw new Error(result.error || "Failed to upgrade plan");
         }
 
-        // Show success dialog
         setPaymentInfo({
           plan: planType === "unlimited" ? "Unlimited Pro" : "Pay Per Use",
           amount: planType === "unlimited" ? "$100" : `$${calculatedPrice}`,
@@ -107,7 +105,6 @@ export default function PricingPage() {
         });
         setIsPaymentDialogOpen(true);
 
-        // Refresh user plan data by dispatching a custom event
         window.dispatchEvent(new CustomEvent("planUpdated"));
 
         setIsProcessing(false);
@@ -225,14 +222,39 @@ export default function PricingPage() {
         return;
       }
 
+      // Update plan
+      const response = await fetch("/api/plan/upgrade", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan_type: planType === "unlimited" ? "pro" : "usage",
+          usage_credits: planType === "payPerUse" ? usageCount[0] : undefined,
+          transaction_hash: receipt.hash,
+          payment_amount: planType === "unlimited" ? 100 : calculatedPrice,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to upgrade plan");
+      }
+
       // Set payment info and show success dialog
       setPaymentInfo({
-        plan: planType === "payPerUse" ? "Pay Per Use" : "Unlimited Pro",
-        amount: `${amount} ETH`,
+        plan: planType === "unlimited" ? "Unlimited Pro" : "Pay Per Use",
+        amount: planType === "unlimited" ? "$100" : `$${calculatedPrice}`,
         txHash: receipt.hash,
         walletAddress: userAddress,
       });
+
       setIsPaymentDialogOpen(true);
+
+      window.dispatchEvent(new CustomEvent("planUpdated"));
+
+      setIsProcessing(false);
     } catch (error: any) {
       console.error("💥 Payment failed:", error);
       console.error("Error details:", {
@@ -487,7 +509,7 @@ export default function PricingPage() {
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button
-              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
+              className="hidden w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
               onClick={() => {
                 console.log("🎯 Pay-per-use payment button clicked!");
                 console.log("Button state:", { isProcessing, hasMetaMask });
