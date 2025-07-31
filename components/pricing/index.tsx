@@ -297,6 +297,64 @@ export default function PricingPage() {
             data-cy="pricing-description-2"
           />
         </p>
+
+        {/* Download Extension Button */}
+        <div className="mt-8 flex justify-center">
+          <a
+            href="https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.4"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-shopify-green to-green-600 hover:from-green-600 hover:to-shopify-green text-white font-semibold rounded-2xl shadow-lg hover:shadow-2xl transform transition-all duration-500 hover:scale-105 hover:-translate-y-1"
+          >
+            {/* Animated background sparkles */}
+            <div className="absolute inset-0 rounded-2xl overflow-hidden">
+              <div
+                className="absolute top-2 left-4 w-1 h-1 bg-white/40 rounded-full animate-ping"
+                style={{ animationDelay: "0s" }}
+              ></div>
+              <div
+                className="absolute top-4 right-6 w-1 h-1 bg-white/30 rounded-full animate-ping"
+                style={{ animationDelay: "0.5s" }}
+              ></div>
+              <div
+                className="absolute bottom-3 left-8 w-1 h-1 bg-white/50 rounded-full animate-ping"
+                style={{ animationDelay: "1s" }}
+              ></div>
+              <div
+                className="absolute bottom-4 right-4 w-1 h-1 bg-white/35 rounded-full animate-ping"
+                style={{ animationDelay: "1.5s" }}
+              ></div>
+            </div>
+
+            {/* Glowing border effect */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-shopify-green via-green-400 to-green-600 rounded-2xl opacity-30 group-hover:opacity-60 transition-opacity duration-500 animate-pulse"></div>
+
+            {/* Content */}
+            <div className="relative flex items-center gap-3">
+              <svg
+                className="w-6 h-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-lg group-hover:tracking-wide transition-all duration-300">
+                Download Chrome Extension
+              </span>
+              <div className="flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full text-sm font-medium group-hover:bg-white/30 transition-all duration-300">
+                <span className="w-2 h-2 bg-green-300 rounded-full animate-bounce"></span>
+                v1.0.4
+              </div>
+            </div>
+
+            {/* Hover ripple effect */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+          </a>
+        </div>
       </div>
 
       {/* Pricing Cards */}
