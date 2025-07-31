@@ -647,17 +647,6 @@ export default function PricingPage() {
         </Card>
       </div>
 
-      {/* Development Notice */}
-      <div className="text-center mt-12">
-        <div className="max-w-2xl mx-auto p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            🚧 <strong>Development Mode:</strong> Payment buttons use fake
-            transactions for testing. No MetaMask required - plans will be
-            upgraded instantly for development purposes.
-          </p>
-        </div>
-      </div>
-
       {/* Footer CTA */}
       <div className="text-center mt-16">
         <p className="text-gray-600 mb-6">
