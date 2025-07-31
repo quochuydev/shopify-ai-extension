@@ -14,11 +14,11 @@ interface CurrentPlanCardProps {
 export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
   const getPlanIcon = () => {
     switch (planInfo.plan_type) {
-      case 'pro':
+      case "pro":
         return <Crown className="h-5 w-5 text-yellow-500" />;
-      case 'usage':
+      case "usage":
         return <Zap className="h-5 w-5 text-blue-500" />;
-      case 'free':
+      case "free":
       default:
         return <Clock className="h-5 w-5 text-gray-500" />;
     }
@@ -26,23 +26,23 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
 
   const getPlanTitle = () => {
     switch (planInfo.plan_type) {
-      case 'pro':
-        return 'Pro Plan';
-      case 'usage':
-        return 'Usage Plan';
-      case 'free':
+      case "pro":
+        return "Pro Plan";
+      case "usage":
+        return "Usage Plan";
+      case "free":
       default:
-        return 'Free Trial';
+        return "Free Trial";
     }
   };
 
   const getPlanDescription = () => {
     switch (planInfo.plan_type) {
-      case 'pro':
-        return 'Unlimited AI actions';
-      case 'usage':
+      case "pro":
+        return "Unlimited AI actions";
+      case "usage":
         return `${planInfo.usage_credits || 0} credits remaining`;
-      case 'free':
+      case "free":
       default:
         return `${planInfo.usage_credits || 0} free credits remaining`;
     }
@@ -50,39 +50,14 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
 
   const getStatusBadge = () => {
     const statusConfig = {
-      active: { text: 'Active', className: 'bg-green-100 text-green-800' },
-      trial: { text: 'Trial', className: 'bg-blue-100 text-blue-800' },
-      expired: { text: 'Expired', className: 'bg-red-100 text-red-800' }
+      active: { text: "Active", className: "bg-green-100 text-green-800" },
+      trial: { text: "Trial", className: "bg-blue-100 text-blue-800" },
+      expired: { text: "Expired", className: "bg-red-100 text-red-800" },
     };
 
     const config = statusConfig[planInfo.plan_status];
-    return (
-      <Badge className={config.className}>
-        {config.text}
-      </Badge>
-    );
+    return <Badge className={config.className}>{config.text}</Badge>;
   };
-
-  const getUsageProgress = () => {
-    if (planInfo.plan_type === 'pro') {
-      return null; // Pro has unlimited usage
-    }
-
-    const maxCredits = planInfo.plan_type === 'free' ? 5 : 100; // Assume 100 for usage plans
-    const usedCredits = maxCredits - (planInfo.usage_credits || 0);
-    const progressValue = (usedCredits / maxCredits) * 100;
-
-    return (
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Usage this period</span>
-          <span>{usedCredits}/{maxCredits}</span>
-        </div>
-        <Progress value={progressValue} className="h-2" />
-      </div>
-    );
-  };
-
 
   return (
     <Card>
@@ -93,13 +68,9 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
         </CardTitle>
         {getStatusBadge()}
       </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600">
-          {getPlanDescription()}
-        </p>
 
-        {getUsageProgress()}
+      <CardContent className="space-y-4">
+        <p className="text-sm text-gray-600">{getPlanDescription()}</p>
 
         <div className="grid grid-cols-2 gap-4 pt-2">
           <div className="text-center">
@@ -117,8 +88,7 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
           </div>
         </div>
 
-
-        {planInfo.plan_status === 'expired' && (
+        {planInfo.plan_status === "expired" && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-800 font-medium">
               ⚠️ Your plan has expired. Upgrade to continue using AI features.
@@ -126,13 +96,15 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
           </div>
         )}
 
-        {planInfo.plan_type === 'free' && (planInfo.usage_credits || 0) <= 2 && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800 font-medium">
-              💡 You're running low on free credits. Consider upgrading for unlimited access.
-            </p>
-          </div>
-        )}
+        {planInfo.plan_type === "free" &&
+          (planInfo.usage_credits || 0) <= 2 && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800 font-medium">
+                💡 You're running low on free credits. Consider upgrading for
+                unlimited access.
+              </p>
+            </div>
+          )}
       </CardContent>
     </Card>
   );

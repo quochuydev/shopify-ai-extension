@@ -132,6 +132,20 @@ export function useUserPlan(): UseUserPlanReturn {
     return () => subscription.unsubscribe();
   }, [supabase.auth, fetchPlanInfo]);
 
+  // Listen for plan updates from other components
+  useEffect(() => {
+    const handlePlanUpdate = () => {
+      console.log('🔄 Plan updated, refreshing data...');
+      fetchPlanInfo();
+    };
+
+    window.addEventListener('planUpdated', handlePlanUpdate);
+    
+    return () => {
+      window.removeEventListener('planUpdated', handlePlanUpdate);
+    };
+  }, [fetchPlanInfo]);
+
   return {
     planInfo,
     loading,

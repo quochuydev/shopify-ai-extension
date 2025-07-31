@@ -107,6 +107,9 @@ export default function PricingPage() {
         });
         setIsPaymentDialogOpen(true);
         
+        // Refresh user plan data by dispatching a custom event
+        window.dispatchEvent(new CustomEvent('planUpdated'));
+        
         setIsProcessing(false);
         return;
       }

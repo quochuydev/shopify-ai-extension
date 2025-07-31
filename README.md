@@ -78,6 +78,8 @@ npx claude "Use the documentation inside `.claude/features/website-user-test-ext
 npx claude "Use the documentation inside `.claude/features/api-integration.md`, Implement feature by update/or create new files"
 npx claude "Use the documentation inside `.claude/features/user-plan-management.md`, Implement feature"
 
+The usage_credits should be increase when user pay many times for the plan.
+refactor API generate, if user use Pro plan, you dont need check remaining credits, just pass for him
 
 # For shadcn to add component
 npx shadcn add sonner

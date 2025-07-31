@@ -39,14 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create or update user plan (upsert)
-    const planData: any = {
-      user_id: user.id,
-      plan_type,
-      usage_credits: plan_type === "pro" ? null : usage_credits,
-      updated_at: new Date().toISOString(),
-    };
-
+    // Get current plan to handle credit accumulation
     const { data: currentPlan } = await supabase
       .from("user_plans")
       .select("*")
@@ -54,7 +47,32 @@ export async function POST(request: NextRequest) {
       .single();
 
     console.log(`debug:currentPlan`, currentPlan);
-    planData.id = currentPlan?.id;
+
+    // Calculate credits based on plan type and current credits
+    let finalCredits: number | null = null;
+    
+    if (plan_type === "pro") {
+      // Pro plan gets unlimited usage (null credits)
+      finalCredits = null;
+    } else if (plan_type === "usage") {
+      // For usage plans, accumulate credits with existing credits
+      const currentCredits = currentPlan?.usage_credits || 0;
+      const newCredits = usage_credits || 0;
+      finalCredits = currentCredits + newCredits;
+      console.log(`debug:credits`, { currentCredits, newCredits, finalCredits });
+    }
+
+    // Create or update user plan (upsert)
+    const planData: any = {
+      user_id: user.id,
+      plan_type,
+      usage_credits: finalCredits,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (currentPlan?.id) {
+      planData.id = currentPlan.id;
+    }
 
     const { data: updatedPlan, error: updateError } = await supabase
       .from("user_plans")
