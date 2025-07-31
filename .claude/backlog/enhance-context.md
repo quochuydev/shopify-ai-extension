@@ -4,7 +4,7 @@ This step focuses on extracting meaningful context from user input (like an imag
 
 ### Checklist
 
-- 🧩 Capture input Image drag/drop, optional product hints, user text ✅
+- 🧩 Capture input Image drag/drop, optional product, user text ✅
 - 🧠 Extract image context Use GPT-4 Vision, Gemini, or custom vision model ⏳
 - 📄 Tabular data enrichment Optionally enrich from CSV, Shopify past products, vendors 🔲
 - ✏️ Query rewriting Rewrite product name or prompt to improve generation 🔲

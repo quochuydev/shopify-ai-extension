@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ProductContent } from "@/types";
 import { generateProductFromImage } from "@/lib/ai";
+import { configuration } from "@/configuration";
 
 // Rate limiting configuration
-const RATE_LIMIT_REQUESTS = 5; // Free trial limit
-const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const RATE_LIMIT_REQUESTS = configuration.rateLimitRequests; // Free trial limit
+const RATE_LIMIT_WINDOW = configuration.rateLimitWindow; // 2 days in milliseconds
 
 // Rate limiting helper
 async function checkRateLimit(
@@ -14,7 +15,6 @@ async function checkRateLimit(
 ): Promise<{ allowed: boolean; remaining: number }> {
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW);
-
 
   try {
     const { data: requests, error } = await supabase
@@ -145,10 +145,8 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const formData = await request.formData();
     const imageFile = formData.get("image") as File;
-    const hints = formData.get("hints") as string; // Optional product hints
 
     result.imageFile = !!imageFile;
-    result.hints = !!hints;
 
     if (!imageFile) {
       return NextResponse.json(
@@ -205,7 +203,6 @@ export async function POST(request: NextRequest) {
         data: productContent,
         meta: {
           remaining_requests: updatedRateLimit.remaining,
-          hints_used: !!hints,
         },
       },
       {

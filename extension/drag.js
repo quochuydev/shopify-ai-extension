@@ -20,7 +20,7 @@ const trySetTinyMCE = (description) => {
 };
 
 function fillShopifyProductForm(content) {
-  console.log("🔄 Filling Shopify form with demo AI data:", content);
+  console.log("🔄 Filling form with AI data:", content);
 
   // Title
   const titleInputSelector = 'input[name="title"]';
@@ -269,6 +269,7 @@ button.addEventListener("click", async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     showSuggestedCategories(generatedContent.collections);
+
     updateProgress(100);
 
     showStatus("Product details generated successfully!", "success");
@@ -384,8 +385,29 @@ async function handleImageUpload(file) {
     updateProgress(90);
 
     // Fill form with AI-generated content
-    fillShopifyProductForm(generatedContent);
+
+    const isOnWebsite =
+      window.location.hostname.includes("localhost") ||
+      window.location.hostname.includes("shopify-ai-extension.vercel.app");
+
+    if (isOnWebsite) {
+      // Send message to website to show ProductPreview dialog
+      console.log("📤 Sending GENERATED_CONTENT message to website");
+
+      window.postMessage(
+        {
+          type: "GENERATED_CONTENT",
+          content: generatedContent,
+        },
+        "*"
+      );
+      return;
+    } else {
+      fillShopifyProductForm(generatedContent);
+    }
+
     showSuggestedCategories(generatedContent.collections);
+
     updateProgress(100);
 
     showStatus("Product generated from image!", "success");
@@ -531,7 +553,6 @@ window.addEventListener("message", (event) => {
       updateGenerateSection(false);
     }
   }
-
 });
 
 function updateAuthUI(authenticated, email = null) {
@@ -584,16 +605,16 @@ loginBtn.addEventListener("click", function () {
     // Verify origin for security
     const allowedOrigins = [
       "http://localhost:3000",
-      "https://shopify-ai-extension.vercel.app"
+      "https://shopify-ai-extension.vercel.app",
     ];
-    
+
     if (!allowedOrigins.includes(event.origin)) {
       return;
     }
 
     if (event.data?.type === "EXTENSION_AUTH_SUCCESS") {
       console.log("✅ Received auth success from popup:", event.data);
-      
+
       // Save auth data
       window.postMessage(
         {
@@ -613,10 +634,10 @@ loginBtn.addEventListener("click", function () {
       updateGenerateSection(true);
 
       showStatus("Successfully logged in!", "success");
-      
+
       // Clean up
       window.removeEventListener("message", messageListener);
-      
+
       // Close popup if still open
       if (loginPopup && !loginPopup.closed) {
         loginPopup.close();
@@ -633,7 +654,7 @@ loginBtn.addEventListener("click", function () {
       clearInterval(checkClosed);
       // Remove listener if popup closed without success
       window.removeEventListener("message", messageListener);
-      
+
       // Check auth status in case authentication succeeded
       setTimeout(() => {
         window.postMessage({ type: "CHECK_AUTH_STATUS" }, "*");

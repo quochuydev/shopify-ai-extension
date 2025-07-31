@@ -1,16 +1,22 @@
 import { generateProductFromImage } from "@/lib/ai";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { configuration } from "@/configuration";
 
-// Rate limiting configuration for external API (extension usage)
-const RATE_LIMIT_REQUESTS = 3; // Lower limit for external usage
-const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+// Rate limiting configuration
+const RATE_LIMIT_REQUESTS = configuration.rateLimitRequests; // Free trial limit
+const RATE_LIMIT_WINDOW = configuration.rateLimitWindow; // 2 days in milliseconds
 
 // Rate limiting helper
 async function checkRateLimit(
   userId: string,
   supabase: any
-): Promise<{ allowed: boolean; remaining: number }> {
+): Promise<{
+  allowed: boolean;
+  requestCount: number;
+  remaining: number;
+  error?: any;
+}> {
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW);
 
@@ -25,8 +31,13 @@ async function checkRateLimit(
 
     if (error) {
       console.error("External API Rate limit check error:", error);
-      // On error, allow the request but log it
-      return { allowed: true, remaining: RATE_LIMIT_REQUESTS - 1 };
+
+      return {
+        allowed: false,
+        requestCount: 0,
+        remaining: 0,
+        error,
+      };
     }
 
     const requestCount = requests?.length || 0;
@@ -34,11 +45,18 @@ async function checkRateLimit(
 
     return {
       allowed: requestCount < RATE_LIMIT_REQUESTS,
+      requestCount,
       remaining,
+      error,
     };
   } catch (error) {
     console.error("External API Rate limit check failed:", error);
-    return { allowed: true, remaining: RATE_LIMIT_REQUESTS - 1 };
+    return {
+      allowed: false,
+      requestCount: 0,
+      remaining: 0,
+      error,
+    };
   }
 }
 
@@ -100,7 +118,8 @@ export async function POST(request: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser(token);
 
-    result.user = user;
+    result.userId = user?.id;
+    result.userEmail = user?.email;
     result.authError = authError;
 
     if (authError || !user) {
@@ -146,10 +165,8 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const formData = await request.formData();
     const imageFile = formData.get("image") as File;
-    const hints = formData.get("hints") as string; // Optional product hints
 
     result.imageFile = !!imageFile;
-    result.hints = !!hints;
 
     if (!imageFile) {
       return NextResponse.json(
@@ -199,7 +216,6 @@ export async function POST(request: NextRequest) {
       generated_content: productContent,
       created_at: new Date().toISOString(),
       endpoint: "external/generate",
-      hints: hints || null,
     });
     result.requestLogged = !requestLog.error;
 
@@ -218,7 +234,6 @@ export async function POST(request: NextRequest) {
         meta: {
           endpoint: "external/generate",
           remaining_requests: updatedRateLimit.remaining,
-          hints_used: !!hints,
           user_history_count: userHistory.length,
         },
       },

@@ -21,18 +21,13 @@ class RealAIEngine {
     return "http://localhost:3000";
   }
 
-  async generateProductFromImage(imageFile, options = {}) {
-    console.log("🎯 Real AI: generateProductFromImage called");
+  async generateProductFromImage(imageFile) {
+    console.log("🎯 Real AI: called");
 
     try {
       // Create FormData for file upload
       const formData = new FormData();
       formData.append("image", imageFile);
-
-      // Add hints if provided in options
-      if (options.hints) {
-        formData.append("hints", options.hints);
-      }
 
       const authToken = await this.getAuthToken();
 
