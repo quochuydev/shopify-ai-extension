@@ -508,20 +508,7 @@ export default function PricingPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button
-              className="hidden w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
-              onClick={() => {
-                console.log("🎯 Pay-per-use payment button clicked!");
-                console.log("Button state:", { isProcessing, hasMetaMask });
-                handlePayment("payPerUse");
-              }}
-              disabled={isProcessing}
-            >
-              <Wallet className="h-4 w-4" />
-              {isProcessing ? "Processing..." : "Fake Payment (Dev)"}
-            </Button>
-
-            {!hasMetaMask && (
+            {!hasMetaMask ? (
               <div className="w-full">
                 <Button
                   variant="outline"
@@ -534,6 +521,19 @@ export default function PricingPage() {
                   Install MetaMask
                 </Button>
               </div>
+            ) : (
+              <Button
+                className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
+                onClick={() => {
+                  console.log("🎯 Pay-per-use payment button clicked!");
+                  console.log("Button state:", { isProcessing, hasMetaMask });
+                  handlePayment("payPerUse");
+                }}
+                disabled={isProcessing}
+              >
+                <Wallet className="h-4 w-4" />
+                {isProcessing ? "Processing..." : "Pay with MetaMask"}
+              </Button>
             )}
 
             <p className="text-xs text-gray-500 text-center">
@@ -610,20 +610,7 @@ export default function PricingPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button
-              className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
-              onClick={() => {
-                console.log("🎯 Unlimited payment button clicked!");
-                console.log("Button state:", { isProcessing, hasMetaMask });
-                handlePayment("unlimited");
-              }}
-              disabled={isProcessing}
-            >
-              <Wallet className="h-4 w-4" />
-              {isProcessing ? "Processing..." : "Fake Payment (Dev)"}
-            </Button>
-
-            {!hasMetaMask && (
+            {!hasMetaMask ? (
               <div className="w-full">
                 <Button
                   variant="outline"
@@ -636,6 +623,19 @@ export default function PricingPage() {
                   Install MetaMask
                 </Button>
               </div>
+            ) : (
+              <Button
+                className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
+                onClick={() => {
+                  console.log("🎯 Unlimited payment button clicked!");
+                  console.log("Button state:", { isProcessing, hasMetaMask });
+                  handlePayment("unlimited");
+                }}
+                disabled={isProcessing}
+              >
+                <Wallet className="h-4 w-4" />
+                {isProcessing ? "Processing..." : "Pay with MetaMask"}
+              </Button>
             )}
 
             <p className="text-xs text-gray-500 text-center">
