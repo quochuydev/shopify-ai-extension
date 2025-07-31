@@ -4,9 +4,8 @@
 
 Allow the system to manage user access levels via either:
 
-- Pro plan (monthly or yearly subscription)
-- Usage-based pay-as-you-go, tracked by API usage or action volume
-  Supports UI for current plan display, upgrade/purchase, and backend enforcement.
+- Pro plan
+- Usage-based pay-as-you-go, tracked by API usage
 
 ## Goal
 
@@ -14,14 +13,16 @@ Identify each user's current plan: free, pro, or usage
 
 Allow users to:
 
-- View their plan and usage stats
+- View their plan and usage stats - A large popover UI when click in email in header
+  - This will show the plan and usage stats
+  - History product details generated, as a table, when clicked -> the product-preview components is showed
+  - Create new React component to handle it
 - Upgrade to Pro or purchase usage credits
-
-Enforce limits based on plan:
-
-- Free: e.g., 20 generations/month
-- Pro: unlimited
-- Usage: 1 credit = 1 image or generation
+  - Upgrade to Pro plan
+    - Payment via MetaMask
+  - Purchase usage credits
+    - Payment via MetaMask
+  - Create new React component to handle it
 
 ## Flow (Step-by-Step)
 
@@ -31,17 +32,11 @@ Enforce limits based on plan:
 
 2. Fetch plan status
 
-   - Check user_plans table: plan type, remaining credits, renewal date
+   - Check user_plans table
 
-3. Enforce feature access
+3. User upgrades
 
-   - Gate AI calls or generation logic by plan limits
-
-4. User upgrades
-
-   - Via Stripe or QR crypto → triggers webhook → backend updates DB
-
-5. Optional: Show alert when usage is near limit or expired
+   - Via MetaMask → backend updates DB
 
 ## Frontend
 
@@ -53,9 +48,9 @@ Enforce limits based on plan:
 
 - React Hooks:
 
-  - useUserPlan() – fetches current plan info
-  - useUpgrade() – handles payment redirect / crypto QR
-  - useUsageTracker() – optional for inline tracking
+  - useUserPlan() – fetches current plan info, handles MetaMask payment completed and send request update API
+
+- As a developer, i would like to fake metamask step (very simple way, like a boolean variable)
 
 ## Backend
 
@@ -64,27 +59,24 @@ Enforce limits based on plan:
 ```ts
 user_plans {
   id: uuid,
-  user_id: uuid (FK to auth.users),
+  user_id: string,
   plan_type: "free" | "pro" | "usage",
   usage_credits: number, // null for pro
-  renew_at: timestamp, // for subscription
+  created_at: timestamp,
   updated_at: timestamp
 }
 
 ai_requests {
-  user_id,
-  endpoint,
-  created_at,
-  cost: number
+  user_id: string,
+  endpoint: string,
+  created_at: timestamp,
 }
 ```
 
 API Routes:
 
 ```
-GET /api/plan: returns current plan info
+GET /api/plan/current: returns current user's plan info
 
-POST /api/upgrade: initiates Stripe/crypto upgrade
-
-POST /api/webhook/payment: receives payment success → update user_plans
+POST /api/plan/upgrade: update after MetaMask payment completed
 ```

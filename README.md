@@ -69,6 +69,8 @@ npx claude "Scan this the source code"
 npx claude "Use the documentation inside `.claude/features/website.md`, Implement feature by update/or create new files"
 npx claude "Use the documentation inside `.claude/features/website-user-test-extension.md`, Implement feature by update/or create new files"
 npx claude "Use the documentation inside `.claude/features/api-integration.md`, Implement feature by update/or create new files"
+npx claude "Use the documentation inside `.claude/features/user-plan-management.md`, Implement feature"
+
 
 # For shadcn to add component
 npx shadcn add sonner

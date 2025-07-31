@@ -44,9 +44,22 @@ export default function PricingPage() {
 
   // Check MetaMask availability
   useEffect(() => {
-    setHasMetaMask(
-      typeof window !== "undefined" && typeof window.ethereum !== "undefined"
-    );
+    const checkMetaMask = () => {
+      const hasEthereum =
+        typeof window !== "undefined" && typeof window.ethereum !== "undefined";
+      console.log("🦊 MetaMask detection:", {
+        hasWindow: typeof window !== "undefined",
+        hasEthereum: typeof window.ethereum !== "undefined",
+        ethereum: window.ethereum,
+        result: hasEthereum,
+      });
+      setHasMetaMask(hasEthereum);
+    };
+
+    checkMetaMask();
+
+    // Also check after a delay in case MetaMask loads later
+    setTimeout(checkMetaMask, 1000);
   }, []);
 
   // Calculate price based on usage (example: $0.10 per use)
@@ -54,6 +67,7 @@ export default function PricingPage() {
   const calculatedPrice = (usageCount[0] * pricePerUse).toFixed(2);
 
   const handlePayment = async (planType: "payPerUse" | "unlimited") => {
+    console.log("🚀 Payment button clicked:", planType);
     setIsProcessing(true);
 
     try {
@@ -106,16 +120,18 @@ export default function PricingPage() {
 
       // Payment amounts (in ETH) - Using current ETH price approximation
       const ethPrice = 3000; // Approximate ETH price in USD
+
       const payPerUseAmount = (
         Number.parseFloat(calculatedPrice) / ethPrice
       ).toFixed(6);
-      const unlimitedAmount = (29 / ethPrice).toFixed(6); // $29 USD
+
+      const unlimitedAmount = (100 / ethPrice).toFixed(6); // $100 USD
 
       const amount =
         planType === "payPerUse" ? payPerUseAmount : unlimitedAmount;
 
-      // TODO: Configure recipient address - this should be moved to environment variables
-      const recipient = process.env.NEXT_PUBLIC_PAYMENT_WALLET; // Example wallet
+      const recipient = process.env.NEXT_PUBLIC_PAYMENT_WALLET;
+      console.log("💰 Payment recipient:", recipient);
 
       if (!recipient || recipient === "") {
         alert("Payment system is not configured. Please contact support.");
@@ -135,7 +151,7 @@ export default function PricingPage() {
         `Confirm payment:\n\nPlan: ${
           planType === "payPerUse" ? "Pay Per Use" : "Unlimited Pro"
         }\nAmount: ${amount} ETH (~$${
-          planType === "payPerUse" ? calculatedPrice : "29"
+          planType === "payPerUse" ? calculatedPrice : "100"
         })\n\nProceed with transaction?`
       );
 
@@ -175,7 +191,12 @@ export default function PricingPage() {
       });
       setIsPaymentDialogOpen(true);
     } catch (error: any) {
-      console.error("Payment failed:", error);
+      console.error("💥 Payment failed:", error);
+      console.error("Error details:", {
+        code: error.code,
+        message: error.message,
+        data: error.data,
+      });
 
       // Handle specific error types
       if (error.code === 4001) {
@@ -192,7 +213,7 @@ export default function PricingPage() {
         alert(
           `Payment failed: ${
             error.message || "Unknown error"
-          }. Please try again or contact support.`
+          }. Please check browser console for details or contact support.`
         );
       }
     } finally {
@@ -366,7 +387,11 @@ export default function PricingPage() {
           <CardFooter className="flex flex-col gap-3">
             <Button
               className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
-              onClick={() => handlePayment("payPerUse")}
+              onClick={() => {
+                console.log("🎯 Pay-per-use payment button clicked!");
+                console.log("Button state:", { isProcessing, hasMetaMask });
+                handlePayment("payPerUse");
+              }}
               disabled={isProcessing || !hasMetaMask}
             >
               <Wallet className="h-4 w-4" />
@@ -414,9 +439,9 @@ export default function PricingPage() {
           <CardContent className="space-y-6">
             <div className="text-center">
               <div className="text-4xl font-bold text-shopify-green mb-2">
-                $29
+                $100
               </div>
-              <p className="text-gray-600">per month</p>
+              <p className="text-gray-600">a year</p>
               <p className="text-sm text-gray-500 mt-1">Unlimited AI actions</p>
             </div>
 
@@ -453,22 +478,22 @@ export default function PricingPage() {
                 <Check className="h-4 w-4 text-shopify-green mr-3 flex-shrink-0" />
                 <span className="text-sm text-gray-700">API access</span>
               </div>
-              <div className="flex items-center">
-                <Check className="h-4 w-4 text-shopify-green mr-3 flex-shrink-0" />
-                <span className="text-sm text-gray-700">Cancel anytime</span>
-              </div>
             </div>
 
             <div className="bg-shopify-green/5 border border-shopify-green/20 rounded-lg p-4">
               <p className="text-sm text-shopify-green-dark font-medium">
-                💡 Save money when you use more than 290 AI actions per month
+                💡 Save money when you use more than 100 AI actions per year
               </p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button
               className="w-full bg-shopify-green hover:bg-shopify-green-dark text-white font-medium py-3 flex items-center gap-2"
-              onClick={() => handlePayment("unlimited")}
+              onClick={() => {
+                console.log("🎯 Unlimited payment button clicked!");
+                console.log("Button state:", { isProcessing, hasMetaMask });
+                handlePayment("unlimited");
+              }}
               disabled={isProcessing || !hasMetaMask}
             >
               <Wallet className="h-4 w-4" />
