@@ -8,7 +8,7 @@ This document outlines how the **Shopify AI Extension** will authenticate and au
 
 - Allow the extension to securely identify which Shopify store/user is using it (./extension)
 - Enable API requests from the extension to the server with authentication (./app/auth/login)
-- Protect backend routes using a verifiable token: (./app/api/generate)
+- Protect backend routes using a verifiable token: (./app/api/external/generate)
 
 ---
 

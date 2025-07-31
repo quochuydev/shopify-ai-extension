@@ -21,7 +21,7 @@ details using AI (OpenAI GPT-4 Vision) and fill Shopify product forms.
 - **Extension - Content Script** (`extension/content.js`): Injects CSS and JS resources
 - **Extension - Drag UI** (`extension/drag.js`): Main functionality with drag/drop interface
 - **Backend - Supabase Integration** (`lib/supabase/`): Authentication and data persistence
-- **Backend - OpenAI integration** (`lib/api/generate/route.ts`, `lib/api/external/generate/route.ts`)
+- **Backend - OpenAI integration** (`lib/api/external/generate/route.ts`)
 - **Website - Pricing** (`components/pricing/index.tsx`, `app/page.tsx`):
 - **Website - Auth** (`app/auth/*`):
 - Ignore the folder `.claude/backlog/*` - This is just temporary ideas, just ignore it
