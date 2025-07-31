@@ -3,7 +3,7 @@
 Use AI to generate compelling product content directly inside Shopify’s product editor. Drop an image — get optimized title, description, tags, and metadata instantly.
 
 🔗 **Live Website**: [shopify-ai-extension.vercel.app](https://shopify-ai-extension.vercel.app/)  
-📦 **Download Extension**: [v1.0.1 on GitHub](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.3)
+📦 **Download Extension**: [v1.0.3 on GitHub](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.3)
 
 ---
 
@@ -74,9 +74,6 @@ npx claude "Use the documentation inside `.claude/features/api-integration.md`, 
 npx shadcn add sonner
 ```
 
-For external api, having token but the request is not authenticated
-External API Generate: Request processed {"endpoint":"external/generate","timestamp":"2025-07-30T10:43:12.172Z","user":null}
-
 ---
 
 ## 📦 Repositories
@@ -85,14 +82,6 @@ External API Generate: Request processed {"endpoint":"external/generate","timest
 - Website & API: included in mono-repo (`/Website`, `/ai-server`)
 
 ---
-
-## 🤝 Support
-
-For bug reports or questions, open an [issue here](https://github.com/quochuydev/shopify-ai-extension/issues).
-
----
-
-> Made with ❤️ by [@quochuydev](https://github.com/quochuydev)
 
 ## Supabase migration history
 
@@ -107,3 +96,13 @@ create table if not exists public.ai_requests (
 
 ALTER TABLE ai_requests ADD COLUMN endpoint text;
 ```
+
+---
+
+## 🤝 Support
+
+For bug reports or questions, open an [issue here](https://github.com/quochuydev/shopify-ai-extension/issues).
+
+---
+
+> Made with ❤️ by [@quochuydev](https://github.com/quochuydev)
