@@ -3,7 +3,7 @@
 Use AI to generate compelling product content directly inside Shopify’s product editor. Drop an image — get optimized title, description, tags, and metadata instantly.
 
 🔗 **Live Website**: [shopify-ai-extension.vercel.app](https://shopify-ai-extension.vercel.app/)  
-📦 **Download Extension**: [v1.0.1 on GitHub](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.2)
+📦 **Download Extension**: [v1.0.1 on GitHub](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.3)
 
 ---
 
@@ -27,7 +27,7 @@ You can manage your plan at:
 
 ## 🧩 Installation
 
-1. [Download the latest `.zip` file](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.2)
+1. [Download the latest `.zip` file](https://github.com/quochuydev/shopify-ai-extension/releases/tag/v1.0.3)
 2. Go to `chrome://extensions/`
 3. Enable **Developer Mode**
 4. Click **Load unpacked**
