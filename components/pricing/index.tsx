@@ -71,7 +71,47 @@ export default function PricingPage() {
     setIsProcessing(true);
 
     try {
-      // Check if MetaMask is installed
+      // Use fake MetaMask payment for development
+      const FAKE_METAMASK = true;
+
+      if (FAKE_METAMASK) {
+        // Simulate fake MetaMask payment
+        const actualPlanType = planType === "unlimited" ? "pro" : "usage";
+        const credits = planType === "payPerUse" ? usageCount[0] : undefined;
+
+        const response = await fetch('/api/plan/upgrade', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            plan_type: actualPlanType,
+            usage_credits: credits,
+            transaction_hash: 'FAKE_TX_' + Date.now(),
+            payment_amount: planType === "unlimited" ? 100 : calculatedPrice
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to upgrade plan');
+        }
+
+        // Show success dialog
+        setPaymentInfo({
+          plan: planType === "unlimited" ? "Unlimited Pro" : "Pay Per Use",
+          amount: planType === "unlimited" ? "$100" : `$${calculatedPrice}`,
+          txHash: 'FAKE_TX_' + Date.now(),
+          walletAddress: "0xFAKE...DEV",
+        });
+        setIsPaymentDialogOpen(true);
+        
+        setIsProcessing(false);
+        return;
+      }
+
+      // Real MetaMask integration (for production)
       if (typeof window.ethereum === "undefined") {
         alert(
           "Please install MetaMask from https://metamask.io to make payments. This feature requires a Web3 wallet."
@@ -392,10 +432,10 @@ export default function PricingPage() {
                 console.log("Button state:", { isProcessing, hasMetaMask });
                 handlePayment("payPerUse");
               }}
-              disabled={isProcessing || !hasMetaMask}
+              disabled={isProcessing}
             >
               <Wallet className="h-4 w-4" />
-              {isProcessing ? "Processing..." : "Pay with MetaMask"}
+              {isProcessing ? "Processing..." : "Fake Payment (Dev)"}
             </Button>
 
             {!hasMetaMask && (
@@ -494,10 +534,10 @@ export default function PricingPage() {
                 console.log("Button state:", { isProcessing, hasMetaMask });
                 handlePayment("unlimited");
               }}
-              disabled={isProcessing || !hasMetaMask}
+              disabled={isProcessing}
             >
               <Wallet className="h-4 w-4" />
-              {isProcessing ? "Processing..." : "Pay with MetaMask"}
+              {isProcessing ? "Processing..." : "Fake Payment (Dev)"}
             </Button>
 
             {!hasMetaMask && (
@@ -522,6 +562,16 @@ export default function PricingPage() {
             </p>
           </CardFooter>
         </Card>
+      </div>
+
+      {/* Development Notice */}
+      <div className="text-center mt-12">
+        <div className="max-w-2xl mx-auto p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            🚧 <strong>Development Mode:</strong> Payment buttons use fake transactions for testing. 
+            No MetaMask required - plans will be upgraded instantly for development purposes.
+          </p>
+        </div>
       </div>
 
       {/* Footer CTA */}

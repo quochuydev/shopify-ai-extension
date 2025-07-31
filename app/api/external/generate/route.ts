@@ -7,54 +7,76 @@ import { configuration } from "@/configuration";
 const RATE_LIMIT_REQUESTS = configuration.rateLimitRequests; // Free trial limit
 const RATE_LIMIT_WINDOW = configuration.rateLimitWindow; // 2 days in milliseconds
 
-// Rate limiting helper
-async function checkRateLimit(
+// Check user plan and usage limits
+async function checkUserPlanLimits(
   userId: string,
   supabase: any
 ): Promise<{
   allowed: boolean;
   requestCount: number;
   remaining: number;
+  planType: string;
+  planStatus: string;
   error?: any;
 }> {
-  const now = new Date();
-  const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW);
-
   try {
-    // Get user's requests in the current window
-    const { data: requests, error } = await supabase
-      .from("ai_requests")
+    // Get user plan
+    const { data: planData, error: planError } = await supabase
+      .from("user_plans")
       .select("*")
       .eq("user_id", userId)
-      .gte("created_at", windowStart.toISOString())
-      .order("created_at", { ascending: false });
+      .single();
 
-    if (error) {
-      console.error("External API Rate limit check error:", error);
-
+    if (planError) {
+      console.error("External API Plan check error:", planError);
       return {
         allowed: false,
         requestCount: 0,
         remaining: 0,
-        error,
+        planType: 'unknown',
+        planStatus: 'error',
+        error: planError,
       };
     }
 
-    const requestCount = requests?.length || 0;
-    const remaining = Math.max(0, RATE_LIMIT_REQUESTS - requestCount);
+    const plan = planData;
+    let allowed = false;
+    let remaining = 0;
+
+    // Check plan limits
+    if (plan.plan_type === 'pro') {
+      // Pro plan has unlimited usage
+      allowed = true;
+      remaining = 999999; // Represent unlimited
+    } else if (plan.plan_type === 'usage' || plan.plan_type === 'free') {
+      // Usage and free plans have credit limits
+      const credits = plan.usage_credits || 0;
+      allowed = credits > 0;
+      remaining = credits;
+    }
+
+    // Get total request count for stats
+    const { count: totalRequests } = await supabase
+      .from("ai_requests")
+      .select("*", { count: 'exact', head: true })
+      .eq("user_id", userId);
 
     return {
-      allowed: requestCount < RATE_LIMIT_REQUESTS,
-      requestCount,
+      allowed,
+      requestCount: totalRequests || 0,
       remaining,
-      error,
+      planType: plan.plan_type,
+      planStatus: allowed ? 'active' : 'expired',
+      error: null,
     };
   } catch (error) {
-    console.error("External API Rate limit check failed:", error);
+    console.error("External API Plan check failed:", error);
     return {
       allowed: false,
       requestCount: 0,
       remaining: 0,
+      planType: 'unknown',
+      planStatus: 'error',
       error,
     };
   }
@@ -134,26 +156,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check rate limit
-    const rateLimitCheck = await checkRateLimit(user.id, supabase);
-    result.rateLimitCheck = rateLimitCheck;
+    // Check user plan limits
+    const planCheck = await checkUserPlanLimits(user.id, supabase);
+    result.planCheck = planCheck;
 
-    if (!rateLimitCheck.allowed) {
+    if (!planCheck.allowed) {
+      const errorMessage = planCheck.planType === 'free' 
+        ? `Free trial limit reached. You have ${planCheck.remaining} credits remaining. Please upgrade to continue.`
+        : planCheck.planType === 'usage'
+        ? `Usage credits exhausted. You have ${planCheck.remaining} credits remaining. Please purchase more credits.`
+        : `Plan limit exceeded. Current plan: ${planCheck.planType}`;
+
       return NextResponse.json(
         {
-          error: "Rate limit exceeded",
-          message: `Extension usage limit reached: ${RATE_LIMIT_REQUESTS} requests per day. Please try again tomorrow.`,
-          remaining: rateLimitCheck.remaining,
-          resetTime: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
+          error: "Plan limit exceeded",
+          message: errorMessage,
+          planType: planCheck.planType,
+          remaining: planCheck.remaining,
+          planStatus: planCheck.planStatus,
         },
         {
           status: 429,
           headers: {
-            "X-RateLimit-Limit": RATE_LIMIT_REQUESTS.toString(),
-            "X-RateLimit-Remaining": rateLimitCheck.remaining.toString(),
-            "X-RateLimit-Reset": new Date(
-              Date.now() + RATE_LIMIT_WINDOW
-            ).toISOString(),
+            "X-Plan-Type": planCheck.planType,
+            "X-Plan-Remaining": planCheck.remaining.toString(),
+            "X-Plan-Status": planCheck.planStatus,
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -209,13 +236,12 @@ export async function POST(request: NextRequest) {
     );
     result.productGenerated = !!productContent;
 
-    // Log the request for rate limiting and history
+    // Log the request for tracking and history
     const requestLog = await supabase.from("ai_requests").insert({
       user_id: user.id,
-      image_data: base64Image.substring(0, 100) + "...", // Store truncated for history
+      endpoint: "external/generate",
       generated_content: productContent,
       created_at: new Date().toISOString(),
-      endpoint: "external/generate",
     });
     result.requestLogged = !requestLog.error;
 
@@ -223,9 +249,26 @@ export async function POST(request: NextRequest) {
       console.error("External API Failed to log request:", requestLog.error);
     }
 
-    // Update rate limit headers
-    const updatedRateLimit = await checkRateLimit(user.id, supabase);
-    result.updatedRateLimit = updatedRateLimit;
+    // Deduct credits for non-pro plans
+    if (planCheck.planType !== 'pro') {
+      const { error: deductError } = await supabase
+        .from("user_plans")
+        .update({ 
+          usage_credits: Math.max(0, (planCheck.remaining - 1)),
+          updated_at: new Date().toISOString()
+        })
+        .eq("user_id", user.id);
+
+      if (deductError) {
+        console.error("External API Failed to deduct credit:", deductError);
+      } else {
+        result.creditDeducted = true;
+      }
+    }
+
+    // Get updated plan info
+    const updatedPlanCheck = await checkUserPlanLimits(user.id, supabase);
+    result.updatedPlanCheck = updatedPlanCheck;
 
     return NextResponse.json(
       {
@@ -233,18 +276,18 @@ export async function POST(request: NextRequest) {
         data: productContent,
         meta: {
           endpoint: "external/generate",
-          remaining_requests: updatedRateLimit.remaining,
+          plan_type: updatedPlanCheck.planType,
+          remaining_credits: updatedPlanCheck.remaining,
+          plan_status: updatedPlanCheck.planStatus,
           user_history_count: userHistory.length,
         },
       },
       {
         status: 200,
         headers: {
-          "X-RateLimit-Limit": RATE_LIMIT_REQUESTS.toString(),
-          "X-RateLimit-Remaining": updatedRateLimit.remaining.toString(),
-          "X-RateLimit-Reset": new Date(
-            Date.now() + RATE_LIMIT_WINDOW
-          ).toISOString(),
+          "X-Plan-Type": updatedPlanCheck.planType,
+          "X-Plan-Remaining": updatedPlanCheck.remaining.toString(),
+          "X-Plan-Status": updatedPlanCheck.planStatus,
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -321,16 +364,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const rateLimitCheck = await checkRateLimit(user.id, supabase);
+    const planCheck = await checkUserPlanLimits(user.id, supabase);
     const userHistory = await getUserHistory(user.id, supabase);
 
     return NextResponse.json(
       {
         endpoint: "external/generate",
-        rate_limit: {
-          limit: RATE_LIMIT_REQUESTS,
-          remaining: rateLimitCheck.remaining,
-          reset_time: new Date(Date.now() + RATE_LIMIT_WINDOW).toISOString(),
+        plan: {
+          type: planCheck.planType,
+          remaining_credits: planCheck.remaining,
+          status: planCheck.planStatus,
+          allowed: planCheck.allowed,
         },
         history_count: userHistory.length,
         recent_generations: userHistory.slice(0, 3).map((h) => ({

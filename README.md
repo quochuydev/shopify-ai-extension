@@ -53,6 +53,13 @@ You can manage your plan at:
 
 ---
 
+## 📦 Repositories
+
+- Extension: [`/shopify-ai-extension`](https://github.com/quochuydev/shopify-ai-extension)
+- Website & API: included in mono-repo (`/Website`, `/ai-server`)
+
+---
+
 ## 📚 Tech Stack
 
 - Chrome Extension (Manifest v3)
@@ -74,14 +81,10 @@ npx claude "Use the documentation inside `.claude/features/user-plan-management.
 
 # For shadcn to add component
 npx shadcn add sonner
+npx shadcn add progress
+npx shadcn add popover
+npx shadcn add separator
 ```
-
----
-
-## 📦 Repositories
-
-- Extension: [`/shopify-ai-extension`](https://github.com/quochuydev/shopify-ai-extension)
-- Website & API: included in mono-repo (`/Website`, `/ai-server`)
 
 ---
 
@@ -97,6 +100,15 @@ create table if not exists public.ai_requests (
 );
 
 ALTER TABLE ai_requests ADD COLUMN endpoint text;
+
+create table if not exists public.user_plans (
+  id uuid primary key default gen_random_uuid(),
+  user_id TEXT,
+  plan_type TEXT NOT NULL DEFAULT 'free',
+  usage_credits INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
 ```
 
 ---
