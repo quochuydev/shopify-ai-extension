@@ -42,7 +42,7 @@ export function ProductPreview() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="!w-[90vw] !h-[90vh] !max-w-[90vw] !max-h-[90vh] !min-w-[320px] !min-h-[400px] z-[99999] p-0 overflow-auto sm:!w-[90vw] sm:!h-[90vh] md:!w-[90vw] md:!h-[90vh] lg:!w-[90vw] lg:!h-[90vh]"
+        className="w-[90vw] h-[90vh] min-w-[90vw] min-h-[90vh] z-[99999] p-0 overflow-auto"
         showCloseButton={false}
       >
         <div className="flex flex-col w-full h-full">

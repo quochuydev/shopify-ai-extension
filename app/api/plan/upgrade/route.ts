@@ -40,17 +40,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Create or update user plan (upsert)
-    const planData = {
+    const planData: any = {
       user_id: user.id,
       plan_type,
       usage_credits: plan_type === "pro" ? null : usage_credits,
       updated_at: new Date().toISOString(),
     };
 
+    const { data: currentPlan } = await supabase
+      .from("user_plans")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+
+    console.log(`debug:currentPlan`, currentPlan);
+    planData.id = currentPlan?.id;
+
     const { data: updatedPlan, error: updateError } = await supabase
       .from("user_plans")
-      .upsert(planData)
-      .eq("user_id", user.id)
+      .upsert(planData, { onConflict: "id" })
       .select()
       .single();
     console.log(`debug:updateError`, updateError, updatedPlan);
