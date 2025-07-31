@@ -100,8 +100,7 @@ export function CurrentPlanCard({ planInfo }: CurrentPlanCardProps) {
           (planInfo.usage_credits || 0) <= 2 && (
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800 font-medium">
-                💡 You're running low on free credits. Consider upgrading for
-                unlimited access.
+                {`💡 You're running low on free credits. Consider upgrading for unlimited access.`}
               </p>
             </div>
           )}

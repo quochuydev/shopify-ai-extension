@@ -1,8 +1,4 @@
-console.log(
-  `🚀 Shopify AI Extension loaded with ${
-    window.ExtensionConfig.useRealAI ? "Real AI" : "Demo AI"
-  } Engine`
-);
+console.log(`🚀 Shopify AI Extension loaded`);
 
 function setReactInputValue(input, value) {
   if (!input) return;

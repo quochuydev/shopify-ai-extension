@@ -17,13 +17,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "drag.js",
-        "drag.css",
-        "configuration.js",
-        "demoAI.js",
-        "realAI.js"
-      ],
+      "resources": ["drag.js", "drag.css"],
       "matches": ["<all_urls>"]
     }
   ],

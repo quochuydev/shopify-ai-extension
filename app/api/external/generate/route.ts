@@ -2,7 +2,6 @@ import { generateProductFromImage } from "@/lib/ai";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-
 export async function POST(request: NextRequest) {
   try {
     // Get authenticated user via Bearer token (for extension usage)
@@ -53,14 +52,47 @@ export async function POST(request: NextRequest) {
       .eq("user_id", user.id)
       .single();
 
-    const isPro = plan?.plan_type === 'pro';
     const credits = plan?.usage_credits || 0;
+    const planType = plan?.plan_type || "free";
 
-    // Block if not pro and no credits
-    if (!isPro && credits <= 0) {
+    let remainingCredits = null;
+    let allowed = true;
+
+    if (planType === "free") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const { data: todayRequests } = await supabase
+        .from("ai_requests")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("endpoint", "external/generate")
+        .gte("created_at", today.toISOString());
+
+      const dailyUsage = todayRequests?.length || 0;
+      remainingCredits = Math.max(0, 2 - dailyUsage);
+      allowed = dailyUsage < 2;
+    }
+
+    if (planType === "usage") {
+      remainingCredits = credits;
+      allowed = credits > 0;
+    }
+
+    if (planType === "pro") {
+      remainingCredits = null;
+      allowed = true;
+    }
+
+    if (!allowed) {
       return NextResponse.json(
-        { error: "No credits remaining", message: "Please upgrade your plan to continue." },
-        { status: 429 }
+        {
+          error: "No credits remaining",
+          message: "Please upgrade your plan to continue.",
+        },
+        {
+          status: 429,
+        }
       );
     }
 
@@ -105,18 +137,23 @@ export async function POST(request: NextRequest) {
     await supabase.from("ai_requests").insert({
       user_id: user.id,
       endpoint: "external/generate",
+      image_data: base64Image,
       generated_content: productContent,
     });
 
     // Deduct credit for non-pro users
-    if (!isPro) {
-      await supabase.from("user_plans")
+    if (planType === "usage") {
+      await supabase
+        .from("user_plans")
         .update({ usage_credits: Math.max(0, credits - 1) })
         .eq("user_id", user.id);
     }
 
     return NextResponse.json(
-      { success: true, data: productContent },
+      {
+        success: true,
+        data: productContent,
+      },
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
@@ -127,73 +164,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Generate Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-// GET endpoint for checking rate limit status
-export async function GET(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get("authorization");
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
-    }
-
-    // Get plan info
-    const { data: plan } = await supabase
-      .from("user_plans")
-      .select("plan_type, usage_credits")
-      .eq("user_id", user.id)
-      .single();
-
-    // Get recent requests
-    const { data: history } = await supabase
-      .from("ai_requests")
-      .select("generated_content, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    const isPro = plan?.plan_type === 'pro';
-    const credits = plan?.usage_credits || 0;
-
-    return NextResponse.json({
-      plan: {
-        type: plan?.plan_type || 'free',
-        remaining_credits: isPro ? null : credits,
-        allowed: isPro || credits > 0,
-      },
-      history_count: history?.length || 0,
-      recent_generations: (history || []).slice(0, 3).map((h) => ({
-        title: h.generated_content?.title || "Untitled",
-        product_type: h.generated_content?.product_type || "Unknown",
-        created_at: h.created_at,
-      })),
-    });
-  } catch (error) {
-    console.error("External API GET Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
