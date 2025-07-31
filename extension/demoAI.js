@@ -162,20 +162,6 @@ class DemoAIEngine {
       throw error;
     }
   }
-
-  async generateProductFromText(prompt, options = {}) {
-    const { delay = 1000 } = options;
-
-    console.log(
-      "📝 Demo AI: generateProductFromText called with prompt:",
-      prompt
-    );
-
-    await new Promise((resolve) => setTimeout(resolve, delay));
-
-    // Return a demo product based on text prompt
-    return getDemoProductData();
-  }
 }
 
 // Export for use in extension

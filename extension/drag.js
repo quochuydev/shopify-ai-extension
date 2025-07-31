@@ -204,12 +204,6 @@ fileInput.type = "file";
 fileInput.accept = "image/*";
 fileInput.style.display = "none";
 
-// Generate button with loading state
-const button = document.createElement("button");
-button.id = "ai-button";
-button.innerHTML = "Generate Product Details";
-button.style.display = window.ExtensionConfig.useRealAI ? "none" : "block";
-
 // Progress bar
 const progressBar = document.createElement("div");
 progressBar.className = "progress-bar";
@@ -233,7 +227,6 @@ const generateSection = document.createElement("div");
 generateSection.className = "generate-section";
 generateSection.appendChild(dragger);
 generateSection.appendChild(fileInput);
-generateSection.appendChild(button);
 generateSection.appendChild(progressBar);
 generateSection.appendChild(statusMessage);
 
@@ -246,45 +239,6 @@ document.body.appendChild(extension);
 // State management
 let isProcessing = false;
 let isMinimized = false;
-
-button.addEventListener("click", async () => {
-  if (isProcessing) return;
-
-  try {
-    setProcessingState(true, "Generating product details...");
-    updateProgress(30);
-
-    const aiEngine = new DemoAIEngine();
-
-    const generatedContent = await aiEngine.generateProductFromText(
-      "Generate a random product",
-      { delay: 800 }
-    );
-
-    updateProgress(60);
-
-    fillShopifyProductForm(generatedContent);
-    updateProgress(80);
-
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    showSuggestedCategories(generatedContent.collections);
-
-    updateProgress(100);
-
-    showStatus("Product details generated successfully!", "success");
-
-    setTimeout(() => {
-      setProcessingState(false);
-      hideProgress();
-    }, 1500);
-  } catch (error) {
-    console.error("🔴 AI Error:", error);
-    showStatus("Failed to generate product details", "error");
-    setProcessingState(false);
-    hideProgress();
-  }
-});
 
 // Click to upload functionality
 dragger.addEventListener("click", () => {
@@ -321,14 +275,7 @@ function toggleMinimize() {
 
 function setProcessingState(processing, message = "") {
   isProcessing = processing;
-  button.disabled = processing;
-
-  if (processing) {
-    button.innerHTML = '<span class="loading-spinner"></span>Processing...';
-    if (message) showStatus(message, "info");
-  } else {
-    button.innerHTML = "Generate Product Details";
-  }
+  if (processing && message) showStatus(message, "info");
 }
 
 function updateProgress(percentage) {
@@ -573,14 +520,10 @@ function updateGenerateSection(authenticated) {
   if (authenticated) {
     dragger.style.opacity = "1";
     dragger.style.pointerEvents = "auto";
-    button.disabled = false;
-    button.innerHTML = "Generate Product Details";
     fileInput.disabled = false;
   } else {
     dragger.style.opacity = "0.5";
     dragger.style.pointerEvents = "none";
-    button.disabled = true;
-    button.innerHTML = "Login Required";
     fileInput.disabled = true;
   }
 }

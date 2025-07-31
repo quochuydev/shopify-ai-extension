@@ -84,35 +84,6 @@ class RealAIEngine {
     }
   }
 
-  async generateProductFromText(prompt) {
-    console.log("📝 Real AI: called with prompt:", prompt);
-
-    throw new Error(
-      "Text-based generation not yet supported. Please use image-based generation."
-    );
-  }
-
-  async checkRateLimit() {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/external/generate`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${await this.getAuthToken()}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.rate_limit;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Failed to check rate limit:", error);
-      return null;
-    }
-  }
-
   async getAuthToken() {
     return new Promise((resolve) => {
       chrome.storage.local.get(["auth_token"], (result) => {

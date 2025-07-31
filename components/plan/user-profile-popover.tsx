@@ -10,14 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  User, 
-  Calendar, 
-  Eye, 
-  Clock,
-  ChevronDown,
-  Loader2
-} from "lucide-react";
+import { User, Calendar, Eye, Clock, ChevronDown, Loader2 } from "lucide-react";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { CurrentPlanCard } from "./current-plan-card";
 import type { AIRequest } from "@/types/database";
@@ -27,19 +20,19 @@ interface UserProfilePopoverProps {
   onProductPreview?: (content: any) => void;
 }
 
-export function UserProfilePopover({ 
-  userEmail, 
-  onProductPreview 
+export function UserProfilePopover({
+  userEmail,
+  onProductPreview,
 }: UserProfilePopoverProps) {
   const [open, setOpen] = useState(false);
   const { planInfo, loading } = useUserPlan();
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -50,18 +43,18 @@ export function UserProfilePopover({
   };
 
   const getEndpointDisplayName = (endpoint: string) => {
-    if (endpoint.includes('/generate')) {
-      return 'Product Generation';
+    if (endpoint.includes("/generate")) {
+      return "Product Generation";
     }
-    return endpoint.replace('/api/', '').replace('/', ' ');
+    return endpoint.replace("/api/", "").replace("/", " ");
   };
 
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="flex items-center gap-2 hover:bg-gray-100"
           >
             <User className="h-4 w-4" />
@@ -69,12 +62,8 @@ export function UserProfilePopover({
             <ChevronDown className="h-3 w-3" />
           </Button>
         </PopoverTrigger>
-        
-        <PopoverContent 
-          className="w-[400px] p-0" 
-          align="end"
-          sideOffset={5}
-        >
+
+        <PopoverContent className="w-[400px] p-0" align="end" sideOffset={5}>
           <div className="p-4">
             {/* User Info Header */}
             <div className="flex items-center gap-3 mb-4">
@@ -96,9 +85,7 @@ export function UserProfilePopover({
               </div>
             ) : planInfo ? (
               <div className="mb-4">
-                <CurrentPlanCard 
-                  planInfo={planInfo}
-                />
+                <CurrentPlanCard planInfo={planInfo} />
               </div>
             ) : (
               <div className="text-center py-4 text-sm text-gray-500">
@@ -117,22 +104,26 @@ export function UserProfilePopover({
                 </Badge>
               </div>
 
-              {planInfo?.recent_requests && planInfo.recent_requests.length > 0 ? (
+              {planInfo?.recent_requests &&
+              planInfo.recent_requests.length > 0 ? (
                 <ScrollArea className="h-[200px]">
                   <div className="space-y-2">
                     {planInfo.recent_requests.map((request) => (
                       <div
                         key={request.id}
                         className={`p-3 border rounded-lg text-sm transition-colors ${
-                          request.generated_content 
-                            ? 'hover:bg-gray-50 cursor-pointer' 
-                            : 'opacity-60'
+                          request.generated_content
+                            ? "hover:bg-gray-50 cursor-pointer"
+                            : "opacity-60"
                         }`}
-                        onClick={() => request.generated_content && handleProductClick(request)}
+                        onClick={() =>
+                          request.generated_content &&
+                          handleProductClick(request)
+                        }
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium">
-                            {getEndpointDisplayName(request.endpoint)}
+                            {request.generated_content.title}
                           </span>
                           {request.generated_content && (
                             <Eye className="h-3 w-3 text-gray-400" />
@@ -144,7 +135,7 @@ export function UserProfilePopover({
                         </div>
                         {request.generated_content?.title && (
                           <p className="text-xs text-gray-600 mt-1 truncate">
-                            {request.generated_content.title}
+                            {new Date(request.created_at).toLocaleString()}
                           </p>
                         )}
                       </div>
@@ -159,11 +150,9 @@ export function UserProfilePopover({
                 </div>
               )}
             </div>
-
           </div>
         </PopoverContent>
       </Popover>
-
     </>
   );
 }
