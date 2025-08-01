@@ -1,9 +1,7 @@
 import { AuthButton } from "@/components/auth-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
 import Pricing from "@/components/pricing";
 import { ProductPreview } from "@/components/product-preview";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 
 export default function Home() {
@@ -15,7 +13,7 @@ export default function Home() {
             <div className="flex gap-5 items-center font-semibold">
               <Link href={"/"}>Shopify AI Extension</Link>
             </div>
-            {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+            <AuthButton />
           </div>
         </nav>
 
@@ -25,7 +23,9 @@ export default function Home() {
         </main>
 
         <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>Powered by @quochuydev</p>
+          <a href="https://github.com/quochuydev" target="_blank">
+            Powered by @quochuydev
+          </a>
           <ThemeSwitcher />
         </footer>
       </div>

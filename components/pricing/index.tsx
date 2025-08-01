@@ -1,4 +1,5 @@
 "use client";
+import { Typewriter } from "@/components/typewriter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { ethers } from "ethers";
 import { Bot, Check, ExternalLink, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Typewriter } from "@/components/typewriter";
+import React, { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -655,13 +655,10 @@ export default function PricingPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium bg-transparent"
-          >
-            View Documentation
-          </Button>
-          <Button
-            variant="outline"
             className="border-shopify-green text-shopify-green hover:bg-shopify-green/5 font-medium bg-transparent"
+            onClick={() => {
+              window.open("mailto:quochuy.dev@gmail.com");
+            }}
           >
             Contact Sales
           </Button>
