@@ -13,8 +13,6 @@ document.body.appendChild(script);
 window.addEventListener("message", async (event) => {
   if (event.source !== window) return;
 
-  console.log(`debug:content.js`, event.data);
-
   if (event.data?.type === "CHECK_AUTH_STATUS") {
     chrome.storage.local.get(["accessToken", "userEmail"], (result) => {
       window.postMessage(

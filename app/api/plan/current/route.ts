@@ -23,7 +23,6 @@ export async function GET() {
       .eq("user_id", user.id);
 
     const planData = (userPlans || [])[0];
-    console.log(`debug:planData`, planData);
 
     // Get total AI requests count
     const { count: totalRequests } = await supabase

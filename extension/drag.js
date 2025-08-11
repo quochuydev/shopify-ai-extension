@@ -11,7 +11,6 @@ const trySetTinyMCE = (description) => {
   if (typeof tinymce !== "undefined" && tinymce.activeEditor) {
     tinymce.activeEditor.setContent(description);
     tinymce.activeEditor.fire("change");
-    console.log("✅ Description filled via TinyMCE");
   }
 };
 
@@ -107,7 +106,6 @@ function fillShopifyProductForm(content) {
     );
   }
 
-  console.log("📋 Form field mapping results:");
   console.log(`
     ${titleInputSelector}: ${!!titleInput ? "✅" : "⛔"}
     ${priceInputSelector}: ${!!priceInput ? "✅" : "⛔"}
@@ -124,8 +122,6 @@ function fillShopifyProductForm(content) {
     ${vendorInputSelector}: ${!!vendorInput ? "✅" : "⛔"}
     ${tagsInputSelector}: ${!!tagsInput ? "✅" : "⛔"}
   `);
-
-  console.log("✅ Demo AI form filling completed");
 }
 
 // Create enhanced UI elements
@@ -487,11 +483,9 @@ window.postMessage({ type: "CHECK_AUTH_STATUS" }, "*");
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
 
-  console.log(`debug:drag.js`, event.data);
-
   if (event.data?.type === "AUTH_STATUS_RESPONSE") {
     if (event.data.accessToken) {
-      console.log("✅ User is authenticated. Token:", event.data.accessToken);
+      console.log("✅ User is authenticated.");
       context.accessToken = event.data.accessToken;
       context.userEmail = event.data.userEmail;
 
@@ -632,14 +626,11 @@ logoutBtn.addEventListener("click", function () {
 
   // Show success message
   showStatus("Successfully logged out!", "success");
-
   console.log("🚪 User logged out from AI extension");
 });
 
 // API function to generate product from image using the real API
 async function generateProductFromImageAPI(imageFile) {
-  console.log(`debug:window.location.hostname`, window.location.hostname);
-
   const baseUrl = window.location.hostname.includes("localhost")
     ? "http://localhost:3000"
     : "https://shopify-ai-extension.vercel.app";

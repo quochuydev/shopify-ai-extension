@@ -12,8 +12,6 @@ export async function POST(request: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser();
 
-    console.log(`debug:user`, user);
-
     if (userError || !user) {
       return NextResponse.json(
         {
@@ -46,11 +44,9 @@ export async function POST(request: NextRequest) {
       .eq("user_id", user.id)
       .single();
 
-    console.log(`debug:currentPlan`, currentPlan);
-
     // Calculate credits based on plan type and current credits
     let finalCredits: number | null = null;
-    
+
     if (plan_type === "pro") {
       // Pro plan gets unlimited usage (null credits)
       finalCredits = null;
@@ -59,7 +55,11 @@ export async function POST(request: NextRequest) {
       const currentCredits = currentPlan?.usage_credits || 0;
       const newCredits = usage_credits || 0;
       finalCredits = currentCredits + newCredits;
-      console.log(`debug:credits`, { currentCredits, newCredits, finalCredits });
+
+      console.log(
+        `debug:credits`,
+        JSON.stringify({ currentCredits, newCredits, finalCredits })
+      );
     }
 
     // Create or update user plan (upsert)
@@ -79,7 +79,6 @@ export async function POST(request: NextRequest) {
       .upsert(planData, { onConflict: "id" })
       .select()
       .single();
-    console.log(`debug:updateError`, updateError, updatedPlan);
 
     if (updateError) {
       console.error("Plan update error:", updateError);
