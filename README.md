@@ -72,16 +72,15 @@ You can manage your plan at:
 
 ```sh
 # Claude prompts
-npx claude "Scan this the source code"
-npx claude "Use the documentation inside `.claude/features/website.md`, Implement feature by update/or create new files"
-npx claude "Use the documentation inside `.claude/features/website-user-test-extension.md`, Implement feature by update/or create new files"
-npx claude "Use the documentation inside `.claude/features/api-integration.md`, Implement feature by update/or create new files"
-npx claude "Use the documentation inside `.claude/features/user-plan-management.md`, Implement feature"
+npx claude "Scan this source code"
+npx claude "@.claude/features/website.md Implement feature by updating/or creating new files."
+npx claude "@.claude/features/api-integration.md Implement feature by updating/or creating new files."
+npx claude "@.claude/features/user-plan-management.md Implement feature"
 
-The usage_credits should be increase when user pay many times for the plan.
-refactor API generate, if user use Pro plan, you dont need check remaining credits, just pass for him
+The `usage_credits` should be increased when the user pays many times for the plan.
+Refactor the API generation, if the user uses the Pro plan, you don't need to check remaining credits, just pass for him
 
-# For shadcn to add component
+# For `shadcn` to add component
 npx shadcn add sonner
 npx shadcn add progress
 npx shadcn add popover
